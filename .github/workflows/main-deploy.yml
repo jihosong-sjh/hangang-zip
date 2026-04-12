@@ -11,10 +11,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: npm
@@ -23,11 +23,21 @@ jobs:
         run: npm ci
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: gradle
+
+      - name: Check frontend env
+        env:
+          VITE_API_BASE_URL: ${{ secrets.PROD_APP_ORIGIN }}
+        run: |
+          if [ -z "$VITE_API_BASE_URL" ]; then
+            echo "VITE_API_BASE_URL is empty"
+            exit 1
+          fi
+          echo "VITE_API_BASE_URL is set"
 
       - name: Frontend production build
         env:
