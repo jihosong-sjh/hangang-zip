@@ -25,7 +25,7 @@ export function ParkBottomSheet({
       <aside className="bottom-sheet" aria-label="공원 상세 불러오는 중">
         <div className="bottom-sheet__handle" />
         <div className="bottom-sheet__header">
-          <div>
+          <div className="bottom-sheet__title-group">
             <p className="eyebrow">Selected Park</p>
             <h2>{parkName ?? "공원 상세"}</h2>
           </div>
@@ -46,7 +46,7 @@ export function ParkBottomSheet({
       <aside className="bottom-sheet" aria-label="공원 상세 오류">
         <div className="bottom-sheet__handle" />
         <div className="bottom-sheet__header">
-          <div>
+          <div className="bottom-sheet__title-group">
             <p className="eyebrow">Selected Park</p>
             <h2>{parkName ?? "공원 상세"}</h2>
           </div>
@@ -77,7 +77,7 @@ export function ParkBottomSheet({
     <aside className="bottom-sheet" aria-label={`${park.name} 상세`}>
       <div className="bottom-sheet__handle" />
       <div className="bottom-sheet__header">
-        <div>
+        <div className="bottom-sheet__title-group">
           <p className="eyebrow">Selected Park</p>
           <h2>{park.name}</h2>
         </div>

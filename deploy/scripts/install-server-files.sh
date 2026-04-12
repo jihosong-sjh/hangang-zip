@@ -17,7 +17,8 @@ scp -i "$SSH_KEY_PATH" deploy/env/backend.env.example "$TARGET_HOST:/tmp/backend
 ssh -i "$SSH_KEY_PATH" "$TARGET_HOST" <<'EOF'
 set -euo pipefail
 mkdir -p /home/ubuntu/apps/hangang-zip/backend
-mkdir -p /home/ubuntu/apps/hangang-zip/frontend
+sudo mkdir -p /var/www/hangang-zip
+sudo chown -R ubuntu:ubuntu /var/www/hangang-zip
 sudo mv /tmp/hangang-zip.conf /etc/nginx/sites-available/hangang-zip
 sudo ln -sf /etc/nginx/sites-available/hangang-zip /etc/nginx/sites-enabled/hangang-zip
 sudo mv /tmp/hangang-backend.service /etc/systemd/system/hangang-backend.service

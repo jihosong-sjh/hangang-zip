@@ -133,3 +133,6 @@ EC2 한 대 배포 가이드:
 - `deploy/scripts/deploy-frontend.sh`
 - `deploy/scripts/deploy-backend.sh`
 - `deploy/scripts/install-server-files.sh`
+
+GitHub Actions 배포 가이드:
+- [docs/github-actions-deploy.md](docs/github-actions-deploy.md)

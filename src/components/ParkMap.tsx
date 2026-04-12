@@ -42,7 +42,7 @@ export function ParkMap({ parks, selectedParkId, onSelectPark }: ParkMapProps) {
   return (
     <section className="park-map" aria-label="한강공원 지도">
       <div className="park-map__header">
-        <div>
+        <div className="park-map__title-group">
           <p className="eyebrow">Hangang Map</p>
           <h1>한강공원 11곳</h1>
         </div>
@@ -96,7 +96,7 @@ export function ParkMap({ parks, selectedParkId, onSelectPark }: ParkMapProps) {
                 onClick={() => onSelectPark(park)}
               >
                 <div className="park-card__top">
-                  <strong>{park.name}</strong>
+                  <strong className="park-card__name">{park.name}</strong>
                   <span className="park-card__tag">{park.primaryTag}</span>
                 </div>
                 <p className="park-card__description">{park.description}</p>

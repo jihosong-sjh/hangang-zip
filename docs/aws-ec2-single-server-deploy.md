@@ -36,7 +36,8 @@ EC2 인스턴스 권장:
 ## 2. EC2 접속
 
 ```bash
-ssh -i <your-key>.pem ubuntu@<EC2_PUBLIC_IP>
+chmod 600 ~/key/hangang-prod-app.pem
+ssh -i ~/key/hangang-prod-app.pem ubuntu@43.201.31.224
 ```
 
 ## 3. 서버 패키지 설치
@@ -59,7 +60,8 @@ mysql --version
 ```bash
 mkdir -p ~/apps/hangang-zip
 mkdir -p ~/apps/hangang-zip/backend
-mkdir -p ~/apps/hangang-zip/frontend
+sudo mkdir -p /var/www/hangang-zip
+sudo chown -R ubuntu:ubuntu /var/www/hangang-zip
 ```
 
 ## 5. MySQL 초기 설정
@@ -85,7 +87,7 @@ EXIT;
 로컬 프로젝트에서:
 
 ```bash
-cd backend-skeleton
+cd /Users/jihosong/workspace/hangang-zip/backend-skeleton
 ./gradlew bootJar
 ls build/libs
 ```
@@ -96,7 +98,7 @@ ls build/libs
 EC2로 업로드:
 
 ```bash
-scp -i <your-key>.pem backend-skeleton/build/libs/*.jar ubuntu@<EC2_PUBLIC_IP>:~/apps/hangang-zip/backend/hangang-zip-backend.jar
+scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/backend-skeleton/build/libs/*.jar ubuntu@43.201.31.224:/home/ubuntu/apps/hangang-zip/backend/hangang-zip-backend.jar
 ```
 
 ## 7. 로컬에서 프론트 빌드
@@ -106,13 +108,14 @@ scp -i <your-key>.pem backend-skeleton/build/libs/*.jar ubuntu@<EC2_PUBLIC_IP>:~
 같은 도메인에서 `/api` 프록시를 쓸 것이므로:
 
 ```bash
+cd /Users/jihosong/workspace/hangang-zip
 VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com npm run build
 ```
 
 배포 파일 업로드:
 
 ```bash
-scp -i <your-key>.pem -r dist/* ubuntu@<EC2_PUBLIC_IP>:~/apps/hangang-zip/frontend/
+scp -i ~/key/hangang-prod-app.pem -r /Users/jihosong/workspace/hangang-zip/dist/* ubuntu@43.201.31.224:/var/www/hangang-zip/
 ```
 
 ## 8. 백엔드 환경변수 파일 작성
@@ -138,36 +141,20 @@ chmod 600 ~/apps/hangang-zip/backend/.env
 
 ## 9. systemd 서비스 등록
 
-서비스 파일 생성:
+로컬 템플릿 업로드:
 
 ```bash
-sudo tee /etc/systemd/system/hangang-backend.service > /dev/null <<'EOF'
-[Unit]
-Description=Hangang ZIP Backend
-After=network.target mysql.service
-Requires=mysql.service
-
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/apps/hangang-zip/backend
-EnvironmentFile=/home/ubuntu/apps/hangang-zip/backend/.env
-ExecStart=/usr/bin/java -jar /home/ubuntu/apps/hangang-zip/backend/hangang-zip-backend.jar
-Restart=always
-RestartSec=5
-SuccessExitStatus=143
-
-[Install]
-WantedBy=multi-user.target
-EOF
+scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/deploy/systemd/hangang-backend.service ubuntu@43.201.31.224:/tmp/hangang-backend.service
 ```
 
-서비스 반영:
+EC2에서 서비스 등록:
 
 ```bash
+sudo mv /tmp/hangang-backend.service /etc/systemd/system/hangang-backend.service
 sudo systemctl daemon-reload
 sudo systemctl enable hangang-backend
 sudo systemctl start hangang-backend
-sudo systemctl status hangang-backend
+sudo systemctl status hangang-backend --no-pager
 ```
 
 로그 확인:
@@ -186,45 +173,28 @@ curl "http://localhost:8081/api/parks?tag=running"
 
 ## 10. nginx 정적 파일 + API 프록시 설정
 
-기본 사이트 제거:
+로컬 템플릿 업로드:
 
 ```bash
+scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/deploy/nginx/hangang-zip.conf ubuntu@43.201.31.224:/tmp/hangang-zip.conf
+```
+
+EC2에서 설정 적용:
+
+```bash
+sudo mv /tmp/hangang-zip.conf /etc/nginx/sites-available/hangang-zip
+sudo ln -sf /etc/nginx/sites-available/hangang-zip /etc/nginx/sites-enabled/hangang-zip
 sudo rm -f /etc/nginx/sites-enabled/default
-```
-
-설정 파일 생성:
-
-```bash
-sudo tee /etc/nginx/sites-available/hangang-zip > /dev/null <<'EOF'
-server {
-    listen 80;
-server_name hangang.jihosong.com;
-
-    root /home/ubuntu/apps/hangang-zip/frontend;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    location /api/ {
-        proxy_pass http://127.0.0.1:8081/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF
-```
-
-사이트 활성화:
-
-```bash
-sudo ln -s /etc/nginx/sites-available/hangang-zip /etc/nginx/sites-enabled/hangang-zip
 sudo nginx -t
 sudo systemctl reload nginx
+```
+
+설정 반영 직후 확인:
+
+```bash
+ls -ld /var/www/hangang-zip
+ls -l /var/www/hangang-zip
+curl -I http://localhost
 ```
 
 ## 11. 도메인 연결
@@ -276,6 +246,13 @@ curl https://hangang.jihosong.com/api/parks/yeouido
 curl "https://hangang.jihosong.com/api/parks?tag=running"
 ```
 
+문제가 있으면 확인:
+
+```bash
+sudo tail -n 50 /var/log/nginx/error.log
+journalctl -u hangang-backend -n 100 --no-pager
+```
+
 ## 14. 업데이트 배포 절차
 
 ### 프론트 수정 배포
@@ -283,8 +260,9 @@ curl "https://hangang.jihosong.com/api/parks?tag=running"
 로컬:
 
 ```bash
+cd /Users/jihosong/workspace/hangang-zip
 VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com npm run build
-scp -i <your-key>.pem -r dist/* ubuntu@<EC2_PUBLIC_IP>:~/apps/hangang-zip/frontend/
+scp -i ~/key/hangang-prod-app.pem -r /Users/jihosong/workspace/hangang-zip/dist/* ubuntu@43.201.31.224:/var/www/hangang-zip/
 ```
 
 EC2:
@@ -298,9 +276,9 @@ sudo systemctl reload nginx
 로컬:
 
 ```bash
-cd backend-skeleton
+cd /Users/jihosong/workspace/hangang-zip/backend-skeleton
 ./gradlew bootJar
-scp -i <your-key>.pem build/libs/*.jar ubuntu@<EC2_PUBLIC_IP>:~/apps/hangang-zip/backend/hangang-zip-backend.jar
+scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/backend-skeleton/build/libs/*.jar ubuntu@43.201.31.224:/home/ubuntu/apps/hangang-zip/backend/hangang-zip-backend.jar
 ```
 
 EC2:
@@ -331,3 +309,9 @@ mysqldump -u hangang_zip -p hangang_zip > ~/hangang_zip_backup.sql
 - Flyway가 첫 기동 시 테이블과 초기 데이터를 함께 적재한다.
 - 운영 빌드에서는 `npm run build` 전에 반드시 `VITE_PARK_DATA_SOURCE=api`와 실제 `VITE_API_BASE_URL`을 지정해야 한다.
 - 같은 도메인에서 `/api` 프록시를 쓸 경우 프론트의 `VITE_API_BASE_URL`은 `https://hangang.jihosong.com`처럼 도메인 루트 기준으로 주는 편이 단순하다.
+- 정적 파일은 `/home/ubuntu/...` 대신 `/var/www/hangang-zip`에 두는 편이 nginx 권한 문제를 줄이기 쉽다.
+- `/var/www/hangang-zip`에 새 빌드 파일을 올린 뒤에는 브라우저 강력 새로고침으로 이전 캐시 영향을 줄이는 편이 안전하다.
+
+scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/deploy/nginx/hangang-zip.conf ubuntu@43.201.31.224:/tmp/hangang-zip.conf
+sudo mv /tmp/hangang-zip.conf /etc/nginx/sites-available/hangang-zip
+sudo ln -sf /etc/nginx/sites-available/hangang-zip /etc/nginx/sites-enabled/hangang-zip

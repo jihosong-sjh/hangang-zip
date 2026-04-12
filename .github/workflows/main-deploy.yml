@@ -1,0 +1,71 @@
+name: Main Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Frontend production build
+        env:
+          VITE_PARK_DATA_SOURCE: api
+          VITE_API_BASE_URL: ${{ secrets.PROD_APP_ORIGIN }}
+        run: npm run build
+
+      - name: Backend tests
+        working-directory: backend-skeleton
+        run: ./gradlew test
+
+      - name: Build backend jar
+        working-directory: backend-skeleton
+        run: ./gradlew bootJar
+
+      - name: Prepare SSH key
+        env:
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s" "$EC2_SSH_KEY" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+
+      - name: Add EC2 known host
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+
+      - name: Deploy frontend
+        env:
+          PROD_APP_ORIGIN: ${{ secrets.PROD_APP_ORIGIN }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: ./deploy/scripts/deploy-frontend.sh "${EC2_USER}@${EC2_HOST}" ~/.ssh/ec2_key "${PROD_APP_ORIGIN}"
+
+      - name: Deploy backend
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: ./deploy/scripts/deploy-backend.sh "${EC2_USER}@${EC2_HOST}" ~/.ssh/ec2_key
