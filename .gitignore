@@ -1,0 +1,29 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Frontend
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local env files
+.env.local
+.env.*.local
+backend-skeleton/.env.local
+backend-skeleton/.env.*.local
+
+# Backend build / Gradle
+backend-skeleton/build/
+backend-skeleton/.gradle/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.swp

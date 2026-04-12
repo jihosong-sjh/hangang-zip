@@ -1,0 +1,16 @@
+[Unit]
+Description=Hangang ZIP Backend
+After=network.target mysql.service
+Requires=mysql.service
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/apps/hangang-zip/backend
+EnvironmentFile=/home/ubuntu/apps/hangang-zip/backend/.env
+ExecStart=/usr/bin/java -jar /home/ubuntu/apps/hangang-zip/backend/hangang-zip-backend.jar
+Restart=always
+RestartSec=5
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
