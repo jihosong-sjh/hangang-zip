@@ -52,7 +52,15 @@ public final class ParkMapper {
             deliveryZone.getName(),
             deliveryZone.getLatitude(),
             deliveryZone.getLongitude(),
-            deliveryZone.getDescription()
+            deliveryZone.getDescription(),
+            deliveryZone.getAddress(),
+            deliveryZone.getSourceType(),
+            deliveryZone.getVerificationStatus(),
+            deliveryZone.getSourceLabel(),
+            deliveryZone.getSourceUrl(),
+            deliveryZone.getSourceCheckedAt().toString(),
+            deliveryZone.getCoordinateSource(),
+            deliveryZone.getDisplayPolicy()
         );
     }
 

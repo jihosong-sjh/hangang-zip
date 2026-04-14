@@ -7,6 +7,14 @@ public record ParkDeliveryZoneResponse(
     String name,
     BigDecimal latitude,
     BigDecimal longitude,
-    String description
+    String description,
+    String address,
+    String sourceType,
+    String verificationStatus,
+    String sourceLabel,
+    String sourceUrl,
+    String sourceCheckedAt,
+    String coordinateSource,
+    String displayPolicy
 ) {
 }

@@ -309,6 +309,16 @@ button {
   color: #f4fbf6;
 }
 
+.tag-pill--success {
+  background: #d8efe0;
+  color: #164a34;
+}
+
+.tag-pill--warning {
+  background: #fff1df;
+  color: #8a3f00;
+}
+
 .park-card__description {
   margin: 8px 0 10px;
 }
@@ -465,6 +475,36 @@ button {
   color: inherit;
   text-align: left;
   text-decoration: none;
+}
+
+.delivery-zone-card__select {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+
+.delivery-zone-card__badges,
+.delivery-zone-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.delivery-zone-card__meta {
+  font-size: 0.9rem;
+}
+
+.delivery-zone-card__meta a {
+  color: #a33b17;
+  font-weight: 600;
 }
 
 .delivery-zone-card--selected {

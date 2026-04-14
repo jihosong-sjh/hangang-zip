@@ -1,4 +1,11 @@
-import { amenityLabels, parkScoreLabels, parkTagLabels } from "../constants/parkLabels";
+import {
+  amenityLabels,
+  deliveryZoneCoordinateSourceLabels,
+  deliveryZoneSourceLabels,
+  deliveryZoneVerificationLabels,
+  parkScoreLabels,
+  parkTagLabels,
+} from "../constants/parkLabels";
 import { getParkRecommendationLabels } from "../lib/getParkRecommendationLabels";
 import type { DeliveryZone, NearbyRestaurant, Park, ParkScoreKey } from "../types/park";
 import { DetailSection } from "./common/DetailSection";
@@ -84,6 +91,23 @@ export function ParkBottomSheet({
   }
 
   const recommendationLabels = getParkRecommendationLabels(park);
+  const publicDeliveryZones = park.deliveryZones.filter(
+    (deliveryZone) =>
+      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
+  );
+
+  const getSourceTone = (sourceType: DeliveryZone["sourceType"]) => {
+    switch (sourceType) {
+      case "official":
+        return "success" as const;
+      case "community_verified":
+        return "warning" as const;
+      case "unverified":
+        return "warning" as const;
+      default:
+        return "accent" as const;
+    }
+  };
 
   return (
     <aside className="bottom-sheet" aria-label={`${park.name} 상세`}>
@@ -129,22 +153,47 @@ export function ParkBottomSheet({
 
       <DetailSection title="배달존">
         <ul className="delivery-zone-list">
-          {park.deliveryZones.map((deliveryZone) => {
+          {publicDeliveryZones.map((deliveryZone) => {
             const isSelected = deliveryZone.id === selectedDeliveryZoneId;
 
             return (
               <li key={deliveryZone.id}>
-                <button
-                  type="button"
+                <article
                   className={`delivery-zone-card ${isSelected ? "delivery-zone-card--selected" : ""}`}
-                  onClick={() => onSelectDeliveryZone(deliveryZone)}
                 >
-                  <strong>{deliveryZone.name}</strong>
-                  <p>{deliveryZone.description}</p>
-                  <span>
-                    {deliveryZone.latitude.toFixed(4)}, {deliveryZone.longitude.toFixed(4)}
-                  </span>
-                </button>
+                  <button
+                    type="button"
+                    className="delivery-zone-card__select"
+                    onClick={() => onSelectDeliveryZone(deliveryZone)}
+                  >
+                    <div className="delivery-zone-card__badges">
+                      <TagPill
+                        label={deliveryZoneSourceLabels[deliveryZone.sourceType]}
+                        tone={getSourceTone(deliveryZone.sourceType)}
+                      />
+                      <TagPill
+                        label={deliveryZoneVerificationLabels[deliveryZone.verificationStatus]}
+                        tone="muted"
+                      />
+                    </div>
+                    <strong>{deliveryZone.name}</strong>
+                    <p>{deliveryZone.description}</p>
+                    <span>
+                      {deliveryZone.address ?? "도로명 주소 미공개"}
+                    </span>
+                    <span>
+                      {deliveryZoneCoordinateSourceLabels[deliveryZone.coordinateSource]} ·{" "}
+                      {deliveryZone.latitude.toFixed(4)}, {deliveryZone.longitude.toFixed(4)}
+                    </span>
+                  </button>
+                  <div className="delivery-zone-card__meta">
+                    <span>{deliveryZone.sourceLabel}</span>
+                    <a href={deliveryZone.sourceUrl} target="_blank" rel="noreferrer">
+                      출처 보기
+                    </a>
+                    <span>확인일 {deliveryZone.sourceCheckedAt}</span>
+                  </div>
+                </article>
               </li>
             );
           })}

@@ -47,6 +47,23 @@
     "family": 5
   },
   "amenities": ["parking", "restroom", "convenience_store", "cafe", "rental_bike"],
-  "recommendation": "처음 한강공원을 고를 때 가장 실패 확률이 낮은 선택"
+  "recommendation": "처음 한강공원을 고를 때 가장 실패 확률이 낮은 선택",
+  "deliveryZones": [
+    {
+      "id": "yeouido-mulbit-plaza",
+      "name": "물빛광장 진입구 옆",
+      "latitude": 37.5281,
+      "longitude": 126.9336,
+      "description": "미래한강본부 FAQ에 공개된 공식 배달존이다. 지도 좌표는 물빛광장 진입부를 기준으로 수동 보정했다.",
+      "address": null,
+      "sourceType": "official",
+      "verificationStatus": "verified",
+      "sourceLabel": "미래한강본부 FAQ",
+      "sourceUrl": "https://hangang.seoul.go.kr/www/bbsPost/7/479/detail.do?mid=590",
+      "sourceCheckedAt": "2026-04-14",
+      "coordinateSource": "manual",
+      "displayPolicy": "public"
+    }
+  ]
 }
 ```
