@@ -245,9 +245,9 @@ export function MapPage() {
             ? "mock 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."
             : "백엔드 API 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."}
         </p>
-        <p className="page-shell__status">
+        {/* <p className="page-shell__status">
           데이터 소스: <strong>{dataSource === "mock" ? "Mock" : "API"}</strong>
-        </p>
+        </p> */}
       </header>
 
       <ParkFilterBar
