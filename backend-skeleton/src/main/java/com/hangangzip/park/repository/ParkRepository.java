@@ -14,8 +14,7 @@ public interface ParkRepository extends JpaRepository<ParkEntity, String> {
     @Query("""
         select distinct p
         from ParkEntity p
-        left join p.tags t
-        where (:tag is null or t = :tag)
+        where (:tag is null or p.primaryTag = :tag)
         order by p.name asc
         """)
     List<ParkEntity> findAllByOptionalTag(@Param("tag") ParkTag tag);

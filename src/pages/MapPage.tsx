@@ -4,13 +4,7 @@ import { ParkFilterBar } from "../components/ParkFilterBar";
 import { ParkMap } from "../components/ParkMap";
 import { searchNearbyRestaurants } from "../lib/searchNearbyRestaurants";
 import { getPark, getParkDataSource, getParks } from "../lib/parkApi";
-import type { DeliveryZone, MapLayer, NearbyRestaurant, Park, ParkTag } from "../types/park";
-
-const defaultVisibleLayers: Record<MapLayer, boolean> = {
-  parks: true,
-  deliveryZones: true,
-  restaurants: true,
-};
+import type { DeliveryZone, NearbyRestaurant, Park, ParkTag } from "../types/park";
 
 type SearchAnchor = {
   id: string;
@@ -39,8 +33,6 @@ export function MapPage() {
   const [nearbyRestaurants, setNearbyRestaurants] = useState<NearbyRestaurant[]>([]);
   const [isRestaurantLoading, setIsRestaurantLoading] = useState(false);
   const [restaurantError, setRestaurantError] = useState<string | null>(null);
-  const [visibleLayers, setVisibleLayers] =
-    useState<Record<MapLayer, boolean>>(defaultVisibleLayers);
   const dataSource = getParkDataSource();
 
   const selectedParkSummary = useMemo(
@@ -48,11 +40,18 @@ export function MapPage() {
     [parks, selectedParkId],
   );
 
-  const selectedPark = selectedParkDetail ?? selectedParkSummary;
+  const selectedParkDetailMatch = useMemo(
+    () => (selectedParkDetail?.id === selectedParkId ? selectedParkDetail : null),
+    [selectedParkDetail, selectedParkId],
+  );
+
+  const selectedPark = selectedParkDetailMatch ?? selectedParkSummary;
 
   const activeSearchAnchor = useMemo<SearchAnchor | null>(() => {
-    if (selectedDeliveryZoneId && selectedParkDetail) {
-      const deliveryZone = getVisibleDeliveryZones(selectedParkDetail).find((zone) => zone.id === selectedDeliveryZoneId);
+    if (selectedDeliveryZoneId && selectedPark) {
+      const deliveryZone = getVisibleDeliveryZones(selectedPark).find(
+        (zone) => zone.id === selectedDeliveryZoneId,
+      );
 
       if (deliveryZone) {
         return {
@@ -74,7 +73,7 @@ export function MapPage() {
       latitude: selectedParkSummary.latitude,
       longitude: selectedParkSummary.longitude,
     };
-  }, [selectedDeliveryZoneId, selectedParkDetail, selectedParkSummary]);
+  }, [selectedDeliveryZoneId, selectedPark, selectedParkSummary]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -228,13 +227,6 @@ export function MapPage() {
     setSelectedDeliveryZoneId((current) => (current === deliveryZone.id ? null : deliveryZone.id));
   };
 
-  const handleToggleLayer = (layer: MapLayer) => {
-    setVisibleLayers((current) => ({
-      ...current,
-      [layer]: !current[layer],
-    }));
-  };
-
   const handleCloseSheet = () => {
     setSelectedParkId(null);
     setSelectedDeliveryZoneId(null);
@@ -280,10 +272,8 @@ export function MapPage() {
           selectedPark={selectedPark}
           selectedDeliveryZoneId={selectedDeliveryZoneId}
           nearbyRestaurants={nearbyRestaurants}
-          visibleLayers={visibleLayers}
           onSelectPark={handleSelectPark}
           onSelectDeliveryZone={handleSelectDeliveryZone}
-          onToggleLayer={handleToggleLayer}
         />
       )}
 

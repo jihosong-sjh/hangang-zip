@@ -224,7 +224,7 @@ export function ParkBottomSheet({
         {!isRestaurantLoading && !restaurantError && nearbyRestaurants.length === 0 ? (
           <div className="bottom-sheet__status">
             <h3>검색된 맛집이 없습니다.</h3>
-            <p>다른 배달존을 선택하거나 지도의 레이어를 다시 켜서 확인해보세요.</p>
+            <p>다른 배달존을 선택하고 다시 확인해보세요.</p>
           </div>
         ) : null}
 

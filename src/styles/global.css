@@ -222,12 +222,6 @@ button {
   width: 100%;
 }
 
-.park-map__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .park-map__header {
   display: grid;
   gap: 8px;

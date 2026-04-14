@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { parkTagLabels } from "../constants/parkLabels";
 import { loadKakaoMaps, type KakaoMapsSdk } from "../lib/loadKakaoMaps";
-import type { DeliveryZone, MapLayer, NearbyRestaurant, Park } from "../types/park";
+import type { DeliveryZone, NearbyRestaurant, Park } from "../types/park";
 
 type ParkMapProps = {
   parks: Park[];
@@ -9,19 +9,11 @@ type ParkMapProps = {
   selectedPark: Park | null;
   selectedDeliveryZoneId: string | null;
   nearbyRestaurants: NearbyRestaurant[];
-  visibleLayers: Record<MapLayer, boolean>;
   onSelectPark: (park: Park) => void;
   onSelectDeliveryZone: (deliveryZone: DeliveryZone) => void;
-  onToggleLayer: (layer: MapLayer) => void;
 };
 
 const defaultCenter = { latitude: 37.5287, longitude: 126.98 };
-
-const layerLabels: Record<MapLayer, string> = {
-  parks: "공원",
-  deliveryZones: "배달존",
-  restaurants: "맛집",
-};
 
 function getVisibleDeliveryZones(park: Park | null) {
   return park?.deliveryZones.filter(
@@ -95,10 +87,8 @@ export function ParkMap({
   selectedPark,
   selectedDeliveryZoneId,
   nearbyRestaurants,
-  visibleLayers,
   onSelectPark,
   onSelectDeliveryZone,
-  onToggleLayer,
 }: ParkMapProps) {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<any>(null);
@@ -189,40 +179,38 @@ export function ParkMap({
       });
     }
 
-    if (visibleLayers.parks) {
-      parks.forEach((park) => {
-        const isSelected = park.id === selectedParkId;
-        const marker = new kakao.maps.Marker({
+    parks.forEach((park) => {
+      const isSelected = park.id === selectedParkId;
+      const marker = new kakao.maps.Marker({
+        map,
+        position: new kakao.maps.LatLng(park.latitude, park.longitude),
+        title: park.name,
+        image: createMarkerImage(kakao, isSelected ? "#d96c2f" : "#2d6a4f", 24),
+        zIndex: isSelected ? 3 : 1,
+      });
+
+      kakao.maps.event.addListener(marker, "click", () => {
+        selectParkRef.current(park);
+      });
+
+      renderedObjectsRef.current.push(marker);
+
+      if (isSelected) {
+        const overlay = new kakao.maps.CustomOverlay({
           map,
           position: new kakao.maps.LatLng(park.latitude, park.longitude),
-          title: park.name,
-          image: createMarkerImage(kakao, isSelected ? "#d96c2f" : "#2d6a4f", 24),
-          zIndex: isSelected ? 3 : 1,
+          yAnchor: 1.9,
+          content: `<div class="map-badge map-badge--park">${escapeHtml(park.name)}</div>`,
         });
-
-        kakao.maps.event.addListener(marker, "click", () => {
-          selectParkRef.current(park);
-        });
-
-        renderedObjectsRef.current.push(marker);
-
-        if (isSelected) {
-          const overlay = new kakao.maps.CustomOverlay({
-            map,
-            position: new kakao.maps.LatLng(park.latitude, park.longitude),
-            yAnchor: 1.9,
-            content: `<div class="map-badge map-badge--park">${escapeHtml(park.name)}</div>`,
-          });
-          renderedObjectsRef.current.push(overlay);
-        }
-      });
-    }
+        renderedObjectsRef.current.push(overlay);
+      }
+    });
 
     if (selectedPark) {
       addBoundsPoint(selectedPark.latitude, selectedPark.longitude);
     }
 
-    if (visibleLayers.deliveryZones && selectedPark) {
+    if (selectedPark) {
       getVisibleDeliveryZones(selectedPark).forEach((deliveryZone) => {
         const isSelected = deliveryZone.id === selectedDeliveryZoneId;
         const marker = new kakao.maps.Marker({
@@ -252,25 +240,23 @@ export function ParkMap({
       });
     }
 
-    if (visibleLayers.restaurants) {
-      nearbyRestaurants.forEach((restaurant) => {
-        const marker = new kakao.maps.Marker({
-          map,
-          position: new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude),
-          title: restaurant.name,
-          image: createMarkerImage(kakao, "#2459a6", 16),
-          zIndex: 1,
-        });
-
-        kakao.maps.event.addListener(marker, "click", () => {
-          infoWindowRef.current?.setContent(buildRestaurantOverlay(restaurant));
-          infoWindowRef.current?.open(map, marker);
-        });
-
-        renderedObjectsRef.current.push(marker);
-        addBoundsPoint(restaurant.latitude, restaurant.longitude);
+    nearbyRestaurants.forEach((restaurant) => {
+      const marker = new kakao.maps.Marker({
+        map,
+        position: new kakao.maps.LatLng(restaurant.latitude, restaurant.longitude),
+        title: restaurant.name,
+        image: createMarkerImage(kakao, "#2459a6", 16),
+        zIndex: 1,
       });
-    }
+
+      kakao.maps.event.addListener(marker, "click", () => {
+        infoWindowRef.current?.setContent(buildRestaurantOverlay(restaurant));
+        infoWindowRef.current?.open(map, marker);
+      });
+
+      renderedObjectsRef.current.push(marker);
+      addBoundsPoint(restaurant.latitude, restaurant.longitude);
+    });
 
     if (!selectedPark) {
       if (hasBounds) {
@@ -279,7 +265,7 @@ export function ParkMap({
       return;
     }
 
-    if (visibleLayers.restaurants && nearbyRestaurants.length > 0 && hasBounds) {
+    if (nearbyRestaurants.length > 0 && hasBounds) {
       map.setBounds(bounds, 80, 50, 80, 50);
       return;
     }
@@ -296,7 +282,6 @@ export function ParkMap({
     selectedDeliveryZoneId,
     selectedPark,
     selectedParkId,
-    visibleLayers,
   ]);
 
   return (
@@ -310,21 +295,6 @@ export function ParkMap({
           공원을 선택하면 배달존과 주변 음식점을 카카오맵 기준으로 함께 탐색할 수 있습니다.
         </p>
       </div>
-
-      <div className="park-map__controls" role="group" aria-label="지도 레이어">
-        {(Object.keys(layerLabels) as MapLayer[]).map((layer) => (
-          <button
-            key={layer}
-            type="button"
-            className={`chip ${visibleLayers[layer] ? "chip--active" : ""}`}
-            onClick={() => onToggleLayer(layer)}
-            aria-pressed={visibleLayers[layer]}
-          >
-            {layerLabels[layer]}
-          </button>
-        ))}
-      </div>
-
       <div className="park-map__canvas">
         <div ref={mapContainerRef} className="park-map__map" aria-label="카카오맵" />
 

@@ -1,5 +1,7 @@
 package com.hangangzip.park.controller;
 
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,6 +42,7 @@ class ParkControllerIntegrationTest {
     void getParksFiltersByTag() throws Exception {
         mockMvc.perform(get("/api/parks").param("tag", "running"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.items[0].tags").isArray());
+            .andExpect(jsonPath("$.count").value(4))
+            .andExpect(jsonPath("$.items[*].primaryTag", everyItem(is("running"))));
     }
 }
