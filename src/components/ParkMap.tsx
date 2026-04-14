@@ -23,6 +23,13 @@ const layerLabels: Record<MapLayer, string> = {
   restaurants: "맛집",
 };
 
+function getVisibleDeliveryZones(park: Park | null) {
+  return park?.deliveryZones.filter(
+    (deliveryZone) =>
+      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
+  ) ?? [];
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -65,6 +72,23 @@ function buildRestaurantOverlay(restaurant: NearbyRestaurant) {
   `;
 }
 
+function getDeliveryZoneMarkerColor(deliveryZone: DeliveryZone, isSelected: boolean) {
+  if (isSelected) {
+    return "#a33b17";
+  }
+
+  switch (deliveryZone.sourceType) {
+    case "official":
+      return "#f08b49";
+    case "community_verified":
+      return "#c48a2c";
+    case "unverified":
+      return "#ad6a4b";
+    default:
+      return "#f08b49";
+  }
+}
+
 export function ParkMap({
   parks,
   selectedParkId,
@@ -87,7 +111,7 @@ export function ParkMap({
   const [mapError, setMapError] = useState<string | null>(null);
 
   const selectedDeliveryZone =
-    selectedPark?.deliveryZones.find((zone) => zone.id === selectedDeliveryZoneId) ?? null;
+    getVisibleDeliveryZones(selectedPark).find((zone) => zone.id === selectedDeliveryZoneId) ?? null;
 
   useEffect(() => {
     selectParkRef.current = onSelectPark;
@@ -199,13 +223,13 @@ export function ParkMap({
     }
 
     if (visibleLayers.deliveryZones && selectedPark) {
-      selectedPark.deliveryZones.forEach((deliveryZone) => {
+      getVisibleDeliveryZones(selectedPark).forEach((deliveryZone) => {
         const isSelected = deliveryZone.id === selectedDeliveryZoneId;
         const marker = new kakao.maps.Marker({
           map,
           position: new kakao.maps.LatLng(deliveryZone.latitude, deliveryZone.longitude),
           title: deliveryZone.name,
-          image: createMarkerImage(kakao, isSelected ? "#a33b17" : "#f08b49", 20),
+          image: createMarkerImage(kakao, getDeliveryZoneMarkerColor(deliveryZone, isSelected), 20),
           zIndex: isSelected ? 4 : 2,
         });
 
@@ -322,6 +346,7 @@ export function ParkMap({
       <ul className="park-map__list" aria-label="공원 목록 요약">
         {parks.map((park) => {
           const isSelected = park.id === selectedParkId;
+          const visibleDeliveryZoneCount = getVisibleDeliveryZones(park).length;
 
           return (
             <li key={park.id}>
@@ -336,7 +361,7 @@ export function ParkMap({
                 </div>
                 <p className="park-card__description">{park.description}</p>
                 <div className="park-card__meta">
-                  <span>배달존 {park.deliveryZones.length}곳</span>
+                  <span>배달존 {visibleDeliveryZoneCount}곳</span>
                   <span>맛집은 선택 시 실시간 조회</span>
                 </div>
               </button>

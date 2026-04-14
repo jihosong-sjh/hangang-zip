@@ -19,6 +19,13 @@ type SearchAnchor = {
   longitude: number;
 };
 
+function getVisibleDeliveryZones(park: Park | null) {
+  return park?.deliveryZones.filter(
+    (deliveryZone) =>
+      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
+  ) ?? [];
+}
+
 export function MapPage() {
   const [selectedTag, setSelectedTag] = useState<ParkTag | null>(null);
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
@@ -45,9 +52,7 @@ export function MapPage() {
 
   const activeSearchAnchor = useMemo<SearchAnchor | null>(() => {
     if (selectedDeliveryZoneId && selectedParkDetail) {
-      const deliveryZone = selectedParkDetail.deliveryZones.find(
-        (zone) => zone.id === selectedDeliveryZoneId,
-      );
+      const deliveryZone = getVisibleDeliveryZones(selectedParkDetail).find((zone) => zone.id === selectedDeliveryZoneId);
 
       if (deliveryZone) {
         return {
@@ -242,8 +247,8 @@ export function MapPage() {
         <h1>한강공원 배달존 지도</h1>
         <p className="page-shell__intro">
           {dataSource === "mock"
-            ? "mock 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."
-            : "백엔드 API 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."}
+            ? "mock 데이터를 기반으로 공식 배달존과 검토 중인 배달 후보를 함께 보여줍니다."
+            : "백엔드 API 데이터를 기반으로 공식 배달존과 검토 중인 배달 후보를 함께 보여줍니다."}
         </p>
         {/* <p className="page-shell__status">
           데이터 소스: <strong>{dataSource === "mock" ? "Mock" : "API"}</strong>

@@ -1,4 +1,4 @@
-type TagPillTone = "default" | "muted" | "accent";
+type TagPillTone = "default" | "muted" | "accent" | "success" | "warning";
 
 type TagPillProps = {
   label: string;
@@ -11,7 +11,11 @@ export function TagPill({ label, tone = "default" }: TagPillProps) {
       ? "tag-pill"
       : tone === "muted"
         ? "tag-pill tag-pill--muted"
-        : "tag-pill tag-pill--accent";
+        : tone === "accent"
+          ? "tag-pill tag-pill--accent"
+          : tone === "success"
+            ? "tag-pill tag-pill--success"
+            : "tag-pill tag-pill--warning";
 
   return <span className={className}>{label}</span>;
 }

@@ -100,6 +100,7 @@ src/main/java/com/hangangzip
 ## 주의
 - 현재 데이터는 실제 한강공원 기준의 서비스용 초안 데이터
 - 좌표는 공식 한강공원 안내 정보와 지도 서비스 지오코딩을 함께 사용한 대표 위치
+- 배달존에는 `sourceType`, `verificationStatus`, `sourceUrl` 등 검수 메타데이터가 포함된다
 - 공식 검증 완료 운영 데이터는 아님
 - `dev`는 H2, `prod`는 MySQL 전환용 설정이다
 

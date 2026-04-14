@@ -20,12 +20,28 @@ export type ParkScoreKey = "running" | "picnic" | "quiet" | "night" | "family";
 
 export type ParkScores = Record<ParkScoreKey, number>;
 
+export type DeliveryZoneSourceType = "official" | "community_verified" | "unverified";
+
+export type DeliveryZoneVerificationStatus = "verified" | "needs_review" | "rejected";
+
+export type DeliveryZoneCoordinateSource = "official" | "geocoded" | "manual";
+
+export type DeliveryZoneDisplayPolicy = "public" | "ops_only";
+
 export type DeliveryZone = {
   id: string;
   name: string;
   latitude: number;
   longitude: number;
   description: string;
+  address: string | null;
+  sourceType: DeliveryZoneSourceType;
+  verificationStatus: DeliveryZoneVerificationStatus;
+  sourceLabel: string;
+  sourceUrl: string;
+  sourceCheckedAt: string;
+  coordinateSource: DeliveryZoneCoordinateSource;
+  displayPolicy: DeliveryZoneDisplayPolicy;
 };
 
 export type NearbyRestaurant = {

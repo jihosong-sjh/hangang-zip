@@ -31,7 +31,9 @@ class ParkControllerIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("yeouido"))
             .andExpect(jsonPath("$.primaryTag").value("picnic"))
-            .andExpect(jsonPath("$.deliveryZones[0].id").value("yeouido-event-plaza"));
+            .andExpect(jsonPath("$.deliveryZones[0].id").value("yeouido-mulbit-plaza"))
+            .andExpect(jsonPath("$.deliveryZones[0].sourceType").value("official"))
+            .andExpect(jsonPath("$.deliveryZones[0].verificationStatus").value("verified"));
     }
 
     @Test
