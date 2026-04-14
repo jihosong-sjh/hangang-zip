@@ -1,13 +1,14 @@
 # Hangang ZIP
 
-서울 한강공원 11개를 지도에서 탐색하고, 공원별 활동 적합도와 분위기를 확인하는 MVP 웹앱이다.
+서울 한강공원 11개를 지도에서 탐색하고, 공원별 배달존과 근처 맛집을 확인하는 MVP 웹앱이다.
 
 현재 상태:
 - 프론트: React + TypeScript + Vite
-- 지도: Leaflet
+- 지도: Kakao Maps JavaScript SDK
 - 백엔드: Spring Boot + `dev(H2)` / `prod(MySQL)` 프로파일 분리
 - 데이터: 실제 한강공원 기준 서비스용 초안 데이터 11개
   - 좌표는 공식 페이지의 대표 공원/시설 정보를 바탕으로 지도 서비스에서 보정한 대표 위치
+  - 배달존은 공원별 대표 수령 지점을 수동 큐레이션한 초안 데이터
 
 ## 프로젝트 구성
 ```text
@@ -33,6 +34,7 @@ npm install
 ```env
 VITE_PARK_DATA_SOURCE=mock
 VITE_API_BASE_URL=http://localhost:8081
+VITE_KAKAO_MAP_JS_KEY=YOUR_KAKAO_JAVASCRIPT_KEY
 ```
 
 개발 서버 실행:
@@ -50,7 +52,7 @@ npm run dev:api
 프로덕션 빌드:
 
 ```bash
-VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com npm run build
+VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com VITE_KAKAO_MAP_JS_KEY=YOUR_KAKAO_JAVASCRIPT_KEY npm run build
 ```
 
 로컬 확인용 정적 빌드:
@@ -63,12 +65,14 @@ npm run build:local
 ### Mock 모드
 - `VITE_PARK_DATA_SOURCE=mock`
 - 프론트 로컬 데이터(`src/data/parks.ts`) 사용
+- `VITE_KAKAO_MAP_JS_KEY` 필요
 - UI 개발과 레이아웃 점검에 적합
 - 배포 빌드에는 사용하지 않음
 
 ### API 모드
 - `VITE_PARK_DATA_SOURCE=api`
 - `VITE_API_BASE_URL`에 실제 백엔드 주소 지정
+- `VITE_KAKAO_MAP_JS_KEY`에 카카오 JavaScript 키 지정
 - Spring Boot 백엔드 필요
 - 가장 빠른 실행 명령: `npm run dev:api`
 
@@ -106,6 +110,7 @@ cd backend-skeleton
 ## 현재 데이터 상태
 현재 프론트와 백엔드가 보여주는 데이터는 실제 한강공원을 기준으로 정리한 서비스용 초안 데이터다.
 좌표는 공식 한강공원 안내 페이지의 공원명·대표 시설 정보를 기준으로 지도 서비스에서 보정한 대표 위치다.
+근처 맛집은 카카오맵 장소 검색 결과를 보여주며, 실제 배달 가능 여부를 보장하지 않는다.
 
 즉:
 - API는 실제로 동작함

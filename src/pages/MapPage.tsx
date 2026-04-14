@@ -2,24 +2,74 @@ import { useEffect, useMemo, useState } from "react";
 import { ParkBottomSheet } from "../components/ParkBottomSheet";
 import { ParkFilterBar } from "../components/ParkFilterBar";
 import { ParkMap } from "../components/ParkMap";
+import { searchNearbyRestaurants } from "../lib/searchNearbyRestaurants";
 import { getPark, getParkDataSource, getParks } from "../lib/parkApi";
-import type { Park, ParkTag } from "../types/park";
+import type { DeliveryZone, MapLayer, NearbyRestaurant, Park, ParkTag } from "../types/park";
+
+const defaultVisibleLayers: Record<MapLayer, boolean> = {
+  parks: true,
+  deliveryZones: true,
+  restaurants: true,
+};
+
+type SearchAnchor = {
+  id: string;
+  label: string;
+  latitude: number;
+  longitude: number;
+};
 
 export function MapPage() {
   const [selectedTag, setSelectedTag] = useState<ParkTag | null>(null);
   const [selectedParkId, setSelectedParkId] = useState<string | null>(null);
+  const [selectedDeliveryZoneId, setSelectedDeliveryZoneId] = useState<string | null>(null);
   const [parks, setParks] = useState<Park[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedParkDetail, setSelectedParkDetail] = useState<Park | null>(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState<string | null>(null);
+  const [nearbyRestaurants, setNearbyRestaurants] = useState<NearbyRestaurant[]>([]);
+  const [isRestaurantLoading, setIsRestaurantLoading] = useState(false);
+  const [restaurantError, setRestaurantError] = useState<string | null>(null);
+  const [visibleLayers, setVisibleLayers] =
+    useState<Record<MapLayer, boolean>>(defaultVisibleLayers);
   const dataSource = getParkDataSource();
 
   const selectedParkSummary = useMemo(
     () => parks.find((park) => park.id === selectedParkId) ?? null,
     [parks, selectedParkId],
   );
+
+  const selectedPark = selectedParkDetail ?? selectedParkSummary;
+
+  const activeSearchAnchor = useMemo<SearchAnchor | null>(() => {
+    if (selectedDeliveryZoneId && selectedParkDetail) {
+      const deliveryZone = selectedParkDetail.deliveryZones.find(
+        (zone) => zone.id === selectedDeliveryZoneId,
+      );
+
+      if (deliveryZone) {
+        return {
+          id: deliveryZone.id,
+          label: `${deliveryZone.name}`,
+          latitude: deliveryZone.latitude,
+          longitude: deliveryZone.longitude,
+        };
+      }
+    }
+
+    if (!selectedParkSummary) {
+      return null;
+    }
+
+    return {
+      id: selectedParkSummary.id,
+      label: `${selectedParkSummary.name}`,
+      latitude: selectedParkSummary.latitude,
+      longitude: selectedParkSummary.longitude,
+    };
+  }, [selectedDeliveryZoneId, selectedParkDetail, selectedParkSummary]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,7 +95,9 @@ export function MapPage() {
 
         setParks([]);
         setSelectedParkId(null);
+        setSelectedDeliveryZoneId(null);
         setSelectedParkDetail(null);
+        setNearbyRestaurants([]);
         setError(
           fetchError instanceof Error
             ? fetchError.message
@@ -68,6 +120,10 @@ export function MapPage() {
   }, [parks, selectedParkId]);
 
   useEffect(() => {
+    setSelectedDeliveryZoneId(null);
+  }, [selectedParkId]);
+
+  useEffect(() => {
     if (!selectedParkId) {
       setSelectedParkDetail(null);
       setDetailError(null);
@@ -77,6 +133,7 @@ export function MapPage() {
 
     const controller = new AbortController();
 
+    setSelectedParkDetail(null);
     setIsDetailLoading(true);
     setDetailError(null);
 
@@ -105,6 +162,51 @@ export function MapPage() {
     return () => controller.abort();
   }, [selectedParkId]);
 
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (!activeSearchAnchor) {
+      setNearbyRestaurants([]);
+      setRestaurantError(null);
+      setIsRestaurantLoading(false);
+      return;
+    }
+
+    setIsRestaurantLoading(true);
+    setRestaurantError(null);
+
+    searchNearbyRestaurants({
+      latitude: activeSearchAnchor.latitude,
+      longitude: activeSearchAnchor.longitude,
+    })
+      .then((restaurants) => {
+        if (!isCancelled) {
+          setNearbyRestaurants(restaurants);
+        }
+      })
+      .catch((fetchError: unknown) => {
+        if (isCancelled) {
+          return;
+        }
+
+        setNearbyRestaurants([]);
+        setRestaurantError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : "근처 맛집을 불러오는 중 오류가 발생했습니다.",
+        );
+      })
+      .finally(() => {
+        if (!isCancelled) {
+          setIsRestaurantLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [activeSearchAnchor]);
+
   const handleSelectTag = (tag: ParkTag) => {
     setSelectedTag((current) => (current === tag ? null : tag));
   };
@@ -117,23 +219,35 @@ export function MapPage() {
     setSelectedParkId(park.id);
   };
 
+  const handleSelectDeliveryZone = (deliveryZone: DeliveryZone) => {
+    setSelectedDeliveryZoneId((current) => (current === deliveryZone.id ? null : deliveryZone.id));
+  };
+
+  const handleToggleLayer = (layer: MapLayer) => {
+    setVisibleLayers((current) => ({
+      ...current,
+      [layer]: !current[layer],
+    }));
+  };
+
   const handleCloseSheet = () => {
     setSelectedParkId(null);
+    setSelectedDeliveryZoneId(null);
   };
 
   return (
     <main className="page-shell">
       <header className="page-shell__header">
         <p className="eyebrow">Hangang ZIP MVP</p>
-        <h1>한강공원 탐색 앱</h1>
+        <h1>한강공원 배달존 지도</h1>
         <p className="page-shell__intro">
           {dataSource === "mock"
-            ? "mock 데이터를 기반으로 한강공원 11개 위치를 지도에서 확인하고, 마커를 눌러 상세 정보를 볼 수 있습니다."
-            : "백엔드 API 데이터를 기반으로 한강공원 위치를 지도에서 확인하고, 마커를 눌러 상세 정보를 볼 수 있습니다."}
+            ? "mock 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."
+            : "백엔드 API 데이터를 기반으로 한강공원 대표 배달존과 근처 맛집을 카카오맵에서 확인할 수 있습니다."}
         </p>
-        <p className="page-shell__status">
+        {/* <p className="page-shell__status">
           데이터 소스: <strong>{dataSource === "mock" ? "Mock" : "API"}</strong>
-        </p>
+        </p> */}
       </header>
 
       <ParkFilterBar
@@ -155,7 +269,17 @@ export function MapPage() {
           <p>잠시만 기다려주세요.</p>
         </section>
       ) : (
-        <ParkMap parks={parks} selectedParkId={selectedParkId} onSelectPark={handleSelectPark} />
+        <ParkMap
+          parks={parks}
+          selectedParkId={selectedParkId}
+          selectedPark={selectedPark}
+          selectedDeliveryZoneId={selectedDeliveryZoneId}
+          nearbyRestaurants={nearbyRestaurants}
+          visibleLayers={visibleLayers}
+          onSelectPark={handleSelectPark}
+          onSelectDeliveryZone={handleSelectDeliveryZone}
+          onToggleLayer={handleToggleLayer}
+        />
       )}
 
       {!isLoading && !error && parks.length === 0 ? (
@@ -169,8 +293,14 @@ export function MapPage() {
         <ParkBottomSheet
           park={selectedParkDetail}
           parkName={selectedParkSummary?.name ?? null}
+          selectedDeliveryZoneId={selectedDeliveryZoneId}
+          nearbyRestaurants={nearbyRestaurants}
+          restaurantAnchorLabel={activeSearchAnchor?.label ?? null}
           isLoading={isDetailLoading}
           error={detailError}
+          isRestaurantLoading={isRestaurantLoading}
+          restaurantError={restaurantError}
+          onSelectDeliveryZone={handleSelectDeliveryZone}
           onClose={handleCloseSheet}
         />
       ) : null}

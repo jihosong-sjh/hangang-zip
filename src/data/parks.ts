@@ -1,4 +1,14 @@
-import type { Park } from "../types/park";
+import type { DeliveryZone, Park } from "../types/park";
+
+function createDeliveryZone(
+  id: string,
+  name: string,
+  latitude: number,
+  longitude: number,
+  description: string,
+): DeliveryZone {
+  return { id, name, latitude, longitude, description };
+}
 
 export const parks: Park[] = [
   {
@@ -12,6 +22,15 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 4, quiet: 5, night: 2, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "sports_facility"],
     recommendation: "습지 생태와 피크닉을 함께 즐기기 좋은 한적한 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "gangseo-eco-gate",
+        "습지생태 입구 배달존",
+        37.5792,
+        126.8211,
+        "강서습지생태공원 진입 동선과 가까워 도보로 음식을 수령하기 편한 대표 지점",
+      ),
+    ],
   },
   {
     id: "yanghwa",
@@ -24,6 +43,15 @@ export const parks: Park[] = [
     scores: { running: 5, picnic: 4, quiet: 3, night: 4, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "rental_bike", "playground", "sports_facility"],
     recommendation: "장미길과 강변 자전거도로를 따라 달리기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "yanghwa-seonyu-bridge",
+        "선유교 남단 배달존",
+        37.5411,
+        126.9015,
+        "선유교와 잔디광장 사이에 있어 피크닉 이용자가 만나기 쉬운 수령 지점",
+      ),
+    ],
   },
   {
     id: "mangwon",
@@ -36,6 +64,15 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 5, quiet: 3, night: 3, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "playground"],
     recommendation: "넓은 잔디에서 돗자리 피크닉을 즐기기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "mangwon-seongsan-south",
+        "성산대교 남단 배달존",
+        37.551,
+        126.9038,
+        "망원지구 중심 잔디밭과 가까워 가장 무난하게 만남 위치로 잡기 좋은 지점",
+      ),
+    ],
   },
   {
     id: "nanji",
@@ -48,6 +85,15 @@ export const parks: Park[] = [
     scores: { running: 3, picnic: 5, quiet: 3, night: 4, family: 5 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "cafe"],
     recommendation: "거울분수와 넓은 잔디를 중심으로 가족 나들이에 잘 맞는 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "nanji-mirror-fountain",
+        "거울분수 앞 배달존",
+        37.5669,
+        126.8784,
+        "거울분수와 중앙 잔디 사이에서 찾기 쉬워 가족 단위 수령 동선이 편한 지점",
+      ),
+    ],
   },
   {
     id: "yeouido",
@@ -60,6 +106,15 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 5, quiet: 2, night: 4, family: 5 },
     amenities: ["parking", "restroom", "convenience_store", "cafe", "rental_bike", "playground"],
     recommendation: "잔디광장과 물빛무대를 중심으로 처음 가기 좋은 대표 한강공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "yeouido-event-plaza",
+        "이벤트광장 배달존",
+        37.5268,
+        126.9377,
+        "행사 공간과 잔디광장 중간에 있어 처음 방문한 이용자도 찾기 쉬운 대표 배달 수령 지점",
+      ),
+    ],
   },
   {
     id: "banpo",
@@ -72,6 +127,15 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 4, quiet: 2, night: 5, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "cafe", "rental_bike", "sports_facility"],
     recommendation: "달빛무지개분수와 서래섬 산책을 함께 즐기기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "banpo-moonlight-plaza",
+        "달빛광장 배달존",
+        37.5098,
+        126.9956,
+        "달빛무지개분수 관람 동선과 가깝고 저녁 시간대에도 합류하기 쉬운 지점",
+      ),
+    ],
   },
   {
     id: "ichon",
@@ -84,6 +148,15 @@ export const parks: Park[] = [
     scores: { running: 5, picnic: 4, quiet: 4, night: 3, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "sports_facility"],
     recommendation: "갈대길을 따라 산책과 조깅을 즐기기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "ichon-bridge-north",
+        "한강대교 북단 배달존",
+        37.5193,
+        126.9688,
+        "이촌나들목과 산책로 합류 지점에 가까워 운동 후 수령하기 좋은 위치",
+      ),
+    ],
   },
   {
     id: "ttukseom",
@@ -96,6 +169,15 @@ export const parks: Park[] = [
     scores: { running: 5, picnic: 4, quiet: 2, night: 4, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "cafe", "rental_bike", "playground", "sports_facility"],
     recommendation: "수변무대와 자전거 동선을 중심으로 활동적으로 즐기기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "ttukseom-jabeolle",
+        "자벌레 앞 배달존",
+        37.5306,
+        127.0693,
+        "뚝섬 자벌레와 수변광장 사이에 있어 모임 장소로 공유하기 쉬운 지점",
+      ),
+    ],
   },
   {
     id: "jamwon",
@@ -108,6 +190,15 @@ export const parks: Park[] = [
     scores: { running: 5, picnic: 3, quiet: 4, night: 3, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "rental_bike", "sports_facility"],
     recommendation: "강남권에서 자전거와 러닝 동선을 길게 즐기기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "jamwon-sinsa-nadeulmok",
+        "신사나들목 배달존",
+        37.5258,
+        127.0178,
+        "신사나들목 진출입과 가까워 배달 기사와 이용자 모두 접근하기 편한 지점",
+      ),
+    ],
   },
   {
     id: "jamsil",
@@ -120,6 +211,15 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 5, quiet: 3, night: 3, family: 5 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "rental_bike", "sports_facility"],
     recommendation: "자연형 물놀이장과 자연학습장을 함께 즐기기 좋은 가족 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "jamsil-eco-garden-gate",
+        "자연학습장 입구 배달존",
+        37.5187,
+        127.0859,
+        "자연학습장과 잔디마당 연결부에 있어 아이 동반 방문객이 찾기 쉬운 지점",
+      ),
+    ],
   },
   {
     id: "gwangnaru",
@@ -132,5 +232,14 @@ export const parks: Park[] = [
     scores: { running: 4, picnic: 4, quiet: 5, night: 3, family: 4 },
     amenities: ["parking", "restroom", "convenience_store", "playground", "sports_facility"],
     recommendation: "갈대밭과 생태경관을 느끼며 조용히 머물기 좋은 공원",
+    deliveryZones: [
+      createDeliveryZone(
+        "gwangnaru-eco-gate",
+        "생태공원 입구 배달존",
+        37.5418,
+        127.1172,
+        "광나루 생태동선 초입에 있어 조용한 구역 이용 시 기준점으로 쓰기 좋은 지점",
+      ),
+    ],
   },
 ];

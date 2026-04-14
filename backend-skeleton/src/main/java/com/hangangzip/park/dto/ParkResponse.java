@@ -13,6 +13,7 @@ public record ParkResponse(
     String description,
     ParkScoresResponse scores,
     List<String> amenities,
-    String recommendation
+    String recommendation,
+    List<ParkDeliveryZoneResponse> deliveryZones
 ) {
 }
