@@ -5,5 +5,5 @@ export function filterParks(parks: Park[], selectedTag: ParkTag | null) {
     return parks;
   }
 
-  return parks.filter((park) => park.tags.includes(selectedTag));
+  return parks.filter((park) => park.primaryTag === selectedTag);
 }

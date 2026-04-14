@@ -5,8 +5,6 @@ export type ParkTag =
   | "night"
   | "family";
 
-export type MapLayer = "parks" | "deliveryZones" | "restaurants";
-
 export type AmenityType =
   | "parking"
   | "restroom"

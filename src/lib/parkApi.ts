@@ -26,9 +26,7 @@ export async function getParks(
   signal?: AbortSignal,
 ): Promise<Park[]> {
   if (parkDataSource === "mock") {
-    return Promise.resolve(
-      selectedTag ? mockParks.filter((park) => park.tags.includes(selectedTag)) : mockParks,
-    );
+    return Promise.resolve(selectedTag ? mockParks.filter((park) => park.primaryTag === selectedTag) : mockParks);
   }
 
   const params = new URLSearchParams();
