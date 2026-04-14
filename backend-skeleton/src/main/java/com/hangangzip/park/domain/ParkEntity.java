@@ -67,6 +67,10 @@ public class ParkEntity {
     @Column(name = "amenity_type", nullable = false, length = 50)
     private Set<AmenityType> amenities = new LinkedHashSet<>();
 
+    @ElementCollection
+    @CollectionTable(name = "park_delivery_zones", joinColumns = @JoinColumn(name = "park_id"))
+    private Set<ParkDeliveryZoneEmbeddable> deliveryZones = new LinkedHashSet<>();
+
     public ParkEntity() {
     }
 
@@ -180,5 +184,13 @@ public class ParkEntity {
 
     public void setAmenities(Set<AmenityType> amenities) {
         this.amenities = amenities;
+    }
+
+    public Set<ParkDeliveryZoneEmbeddable> getDeliveryZones() {
+        return deliveryZones;
+    }
+
+    public void setDeliveryZones(Set<ParkDeliveryZoneEmbeddable> deliveryZones) {
+        this.deliveryZones = deliveryZones;
     }
 }

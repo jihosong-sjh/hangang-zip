@@ -33,6 +33,7 @@ jobs:
         env:
           VITE_PARK_DATA_SOURCE: api
           VITE_API_BASE_URL: ${{ secrets.PROD_APP_ORIGIN }}
+          VITE_KAKAO_MAP_JS_KEY: ${{ secrets.KAKAO_MAP_JS_KEY }}
         run: npm run build
 
       - name: Backend tests
@@ -60,6 +61,7 @@ jobs:
       - name: Deploy frontend
         env:
           PROD_APP_ORIGIN: ${{ secrets.PROD_APP_ORIGIN }}
+          VITE_KAKAO_MAP_JS_KEY: ${{ secrets.KAKAO_MAP_JS_KEY }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: ./deploy/scripts/deploy-frontend.sh "${EC2_USER}@${EC2_HOST}" ~/.ssh/ec2_key "${PROD_APP_ORIGIN}"

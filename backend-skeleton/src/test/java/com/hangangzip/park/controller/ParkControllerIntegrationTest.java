@@ -30,7 +30,8 @@ class ParkControllerIntegrationTest {
         mockMvc.perform(get("/api/parks/yeouido"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("yeouido"))
-            .andExpect(jsonPath("$.primaryTag").value("picnic"));
+            .andExpect(jsonPath("$.primaryTag").value("picnic"))
+            .andExpect(jsonPath("$.deliveryZones[0].id").value("yeouido-event-plaza"));
     }
 
     @Test

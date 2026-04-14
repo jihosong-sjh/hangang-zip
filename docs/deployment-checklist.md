@@ -4,8 +4,10 @@
 - `npm run build` 성공
 - `VITE_PARK_DATA_SOURCE=api` 기준 동작 확인
 - `VITE_API_BASE_URL`가 실제 백엔드 주소를 가리키는지 확인
+- `VITE_KAKAO_MAP_JS_KEY`가 운영용 JavaScript 키인지 확인
+- Kakao Developers에 배포 도메인이 등록되어 있는지 확인
 - 모바일 화면에서 필터, 지도, 바텀시트가 정상 동작하는지 확인
-- Leaflet 타일 로딩이 배포 환경에서 차단되지 않는지 확인
+- 카카오맵 SDK와 장소 검색이 배포 환경에서 정상 응답하는지 확인
 
 ## 백엔드
 - `./gradlew test` 성공

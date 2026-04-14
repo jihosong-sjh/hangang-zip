@@ -1,5 +1,6 @@
 const dataSource = process.env.VITE_PARK_DATA_SOURCE;
 const apiBaseUrl = process.env.VITE_API_BASE_URL;
+const kakaoMapKey = process.env.VITE_KAKAO_MAP_JS_KEY;
 
 if (dataSource !== "api") {
   console.error("Production build requires VITE_PARK_DATA_SOURCE=api.");
@@ -8,6 +9,11 @@ if (dataSource !== "api") {
 
 if (!apiBaseUrl) {
   console.error("Production build requires VITE_API_BASE_URL.");
+  process.exit(1);
+}
+
+if (!kakaoMapKey) {
+  console.error("Production build requires VITE_KAKAO_MAP_JS_KEY.");
   process.exit(1);
 }
 

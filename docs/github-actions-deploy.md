@@ -42,6 +42,8 @@
   - EC2 접속용 private key 전체 내용
 - `PROD_APP_ORIGIN`
   - 예: `https://hangang.jihosong.com`
+- `KAKAO_MAP_JS_KEY`
+  - Kakao Developers JavaScript 키
 
 ## 전제 조건
 
@@ -69,5 +71,6 @@ EC2에는 아래가 이미 준비돼 있어야 한다.
 ## 주의
 
 - `main` 배포 전에 EC2 `.env`가 올바른지 먼저 확인해야 한다.
-- 프론트 운영 빌드는 `PROD_APP_ORIGIN`을 사용하므로 `localhost` 값을 넣으면 안 된다.
+- 프론트 운영 빌드는 `PROD_APP_ORIGIN`과 `KAKAO_MAP_JS_KEY`를 사용하므로 둘 다 비어 있으면 안 된다.
+- `KAKAO_MAP_JS_KEY`를 발급한 Kakao Developers 앱에 운영 도메인을 JavaScript 허용 도메인으로 등록해야 한다.
 - `main` 배포 워크플로는 EC2 서버 상태를 직접 바꾸므로 `main` 브랜치 보호를 권장한다.

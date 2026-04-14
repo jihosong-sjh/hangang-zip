@@ -103,13 +103,13 @@ scp -i ~/key/hangang-prod-app.pem /Users/jihosong/workspace/hangang-zip/backend-
 
 ## 7. 로컬에서 프론트 빌드
 
-이 프로젝트는 운영 빌드 시 `VITE_PARK_DATA_SOURCE=api`와 `VITE_API_BASE_URL`이 필요하다.
+이 프로젝트는 운영 빌드 시 `VITE_PARK_DATA_SOURCE=api`, `VITE_API_BASE_URL`, `VITE_KAKAO_MAP_JS_KEY`가 필요하다.
 
 같은 도메인에서 `/api` 프록시를 쓸 것이므로:
 
 ```bash
 cd /Users/jihosong/workspace/hangang-zip
-VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com npm run build
+VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com VITE_KAKAO_MAP_JS_KEY=YOUR_KAKAO_JAVASCRIPT_KEY npm run build
 ```
 
 배포 파일 업로드:
@@ -235,6 +235,8 @@ sudo certbot renew --dry-run
 - `https://hangang.jihosong.com`
 - 지도 로드
 - 마커 클릭
+- 배달존 클릭
+- 근처 맛집 검색 결과 표시
 - 상세 바텀시트
 - 필터 동작
 
@@ -261,7 +263,7 @@ journalctl -u hangang-backend -n 100 --no-pager
 
 ```bash
 cd /Users/jihosong/workspace/hangang-zip
-VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com npm run build
+VITE_PARK_DATA_SOURCE=api VITE_API_BASE_URL=https://hangang.jihosong.com VITE_KAKAO_MAP_JS_KEY=YOUR_KAKAO_JAVASCRIPT_KEY npm run build
 scp -i ~/key/hangang-prod-app.pem -r /Users/jihosong/workspace/hangang-zip/dist/* ubuntu@43.201.31.224:/var/www/hangang-zip/
 ```
 
@@ -307,8 +309,9 @@ mysqldump -u hangang_zip -p hangang_zip > ~/hangang_zip_backup.sql
 
 - 현재 데이터는 실제 한강공원 기준의 서비스용 초안 데이터다.
 - Flyway가 첫 기동 시 테이블과 초기 데이터를 함께 적재한다.
-- 운영 빌드에서는 `npm run build` 전에 반드시 `VITE_PARK_DATA_SOURCE=api`와 실제 `VITE_API_BASE_URL`을 지정해야 한다.
+- 운영 빌드에서는 `npm run build` 전에 반드시 `VITE_PARK_DATA_SOURCE=api`, 실제 `VITE_API_BASE_URL`, `VITE_KAKAO_MAP_JS_KEY`를 지정해야 한다.
 - 같은 도메인에서 `/api` 프록시를 쓸 경우 프론트의 `VITE_API_BASE_URL`은 `https://hangang.jihosong.com`처럼 도메인 루트 기준으로 주는 편이 단순하다.
+- Kakao Developers에서 `localhost`와 운영 도메인을 각각 JavaScript 허용 도메인으로 등록해야 한다.
 - 정적 파일은 `/home/ubuntu/...` 대신 `/var/www/hangang-zip`에 두는 편이 nginx 권한 문제를 줄이기 쉽다.
 - `/var/www/hangang-zip`에 새 빌드 파일을 올린 뒤에는 브라우저 강력 새로고침으로 이전 캐시 영향을 줄이는 편이 안전하다.
 

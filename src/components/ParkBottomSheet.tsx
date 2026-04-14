@@ -1,6 +1,6 @@
 import { amenityLabels, parkScoreLabels, parkTagLabels } from "../constants/parkLabels";
 import { getParkRecommendationLabels } from "../lib/getParkRecommendationLabels";
-import type { Park, ParkScoreKey } from "../types/park";
+import type { DeliveryZone, NearbyRestaurant, Park, ParkScoreKey } from "../types/park";
 import { DetailSection } from "./common/DetailSection";
 import { ScoreMeter } from "./common/ScoreMeter";
 import { TagPill } from "./common/TagPill";
@@ -8,16 +8,28 @@ import { TagPill } from "./common/TagPill";
 type ParkBottomSheetProps = {
   park: Park | null;
   parkName?: string | null;
+  selectedDeliveryZoneId: string | null;
+  nearbyRestaurants: NearbyRestaurant[];
+  restaurantAnchorLabel: string | null;
   isLoading?: boolean;
   error?: string | null;
+  isRestaurantLoading?: boolean;
+  restaurantError?: string | null;
+  onSelectDeliveryZone: (deliveryZone: DeliveryZone) => void;
   onClose: () => void;
 };
 
 export function ParkBottomSheet({
   park,
   parkName,
+  selectedDeliveryZoneId,
+  nearbyRestaurants,
+  restaurantAnchorLabel,
   isLoading = false,
   error = null,
+  isRestaurantLoading = false,
+  restaurantError = null,
+  onSelectDeliveryZone,
   onClose,
 }: ParkBottomSheetProps) {
   if (isLoading) {
@@ -113,6 +125,81 @@ export function ParkBottomSheet({
             <TagPill key={amenity} label={amenityLabels[amenity]} tone="muted" />
           ))}
         </div>
+      </DetailSection>
+
+      <DetailSection title="배달존">
+        <ul className="delivery-zone-list">
+          {park.deliveryZones.map((deliveryZone) => {
+            const isSelected = deliveryZone.id === selectedDeliveryZoneId;
+
+            return (
+              <li key={deliveryZone.id}>
+                <button
+                  type="button"
+                  className={`delivery-zone-card ${isSelected ? "delivery-zone-card--selected" : ""}`}
+                  onClick={() => onSelectDeliveryZone(deliveryZone)}
+                >
+                  <strong>{deliveryZone.name}</strong>
+                  <p>{deliveryZone.description}</p>
+                  <span>
+                    {deliveryZone.latitude.toFixed(4)}, {deliveryZone.longitude.toFixed(4)}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </DetailSection>
+
+      <DetailSection title="근처 맛집">
+        {restaurantAnchorLabel ? (
+          <p className="section-caption">
+            {restaurantAnchorLabel} 기준 거리순 결과입니다. 실제 배달 가능 여부를 보장하지는 않습니다.
+          </p>
+        ) : null}
+
+        {isRestaurantLoading ? (
+          <div className="bottom-sheet__status">
+            <h3>근처 맛집을 찾는 중입니다.</h3>
+            <p>카카오맵 장소 데이터를 조회하고 있습니다.</p>
+          </div>
+        ) : null}
+
+        {!isRestaurantLoading && restaurantError ? (
+          <div className="bottom-sheet__status bottom-sheet__status--error" role="alert">
+            <h3>근처 맛집을 불러오지 못했습니다.</h3>
+            <p>{restaurantError}</p>
+          </div>
+        ) : null}
+
+        {!isRestaurantLoading && !restaurantError && nearbyRestaurants.length === 0 ? (
+          <div className="bottom-sheet__status">
+            <h3>검색된 맛집이 없습니다.</h3>
+            <p>다른 배달존을 선택하거나 지도의 레이어를 다시 켜서 확인해보세요.</p>
+          </div>
+        ) : null}
+
+        {!isRestaurantLoading && !restaurantError && nearbyRestaurants.length > 0 ? (
+          <ul className="restaurant-list">
+            {nearbyRestaurants.map((restaurant) => (
+              <li key={restaurant.id}>
+                <a
+                  className="restaurant-card"
+                  href={restaurant.placeUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div className="restaurant-card__top">
+                    <strong>{restaurant.name}</strong>
+                    <span>{Math.round(restaurant.distance)}m</span>
+                  </div>
+                  <p>{restaurant.categoryName}</p>
+                  <p>{restaurant.address}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </DetailSection>
 
       <DetailSection title="추천 문구">
