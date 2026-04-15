@@ -22,4 +22,7 @@ public interface ParkRepository extends JpaRepository<ParkEntity, String> {
     @Override
     @EntityGraph(attributePaths = {"tags", "amenities"})
     java.util.Optional<ParkEntity> findById(String id);
+
+    @EntityGraph(attributePaths = {"tags", "amenities"})
+    java.util.Optional<ParkEntity> findBySlug(String slug);
 }

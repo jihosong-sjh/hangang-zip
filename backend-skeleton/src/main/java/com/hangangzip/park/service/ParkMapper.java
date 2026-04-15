@@ -1,7 +1,7 @@
 package com.hangangzip.park.service;
 
 import com.hangangzip.park.domain.AmenityType;
-import com.hangangzip.park.domain.ParkDeliveryZoneEmbeddable;
+import com.hangangzip.park.domain.DeliveryZoneEntity;
 import com.hangangzip.park.domain.ParkEntity;
 import com.hangangzip.park.domain.ParkTag;
 import com.hangangzip.park.dto.ParkDeliveryZoneResponse;
@@ -15,7 +15,7 @@ public final class ParkMapper {
     private ParkMapper() {
     }
 
-    public static ParkResponse toResponse(ParkEntity park) {
+    public static ParkResponse toResponse(ParkEntity park, List<ParkDeliveryZoneResponse> deliveryZones) {
         return new ParkResponse(
             park.getId(),
             park.getName(),
@@ -39,14 +39,11 @@ public final class ParkMapper {
                 .map(ParkMapper::toClientValue)
                 .toList(),
             park.getRecommendation(),
-            park.getDeliveryZones().stream()
-                .sorted(Comparator.comparing(ParkDeliveryZoneEmbeddable::getId))
-                .map(ParkMapper::toResponse)
-                .toList()
+            deliveryZones
         );
     }
 
-    private static ParkDeliveryZoneResponse toResponse(ParkDeliveryZoneEmbeddable deliveryZone) {
+    public static ParkDeliveryZoneResponse toDeliveryZoneResponse(DeliveryZoneEntity deliveryZone) {
         return new ParkDeliveryZoneResponse(
             deliveryZone.getId(),
             deliveryZone.getName(),
