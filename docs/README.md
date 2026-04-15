@@ -3,13 +3,14 @@
 이 디렉터리는 `Hangang ZIP`의 기획, 설계, 실행, 운영 문서를 성격별로 분리해 관리한다.
 
 ## 읽는 순서
-아래 5개 문서는 이번 서비스 보완/확장 작업의 기본 읽기 순서다.
+아래 6개 문서는 이번 서비스 보완/확장 작업의 기본 읽기 순서다.
 
 1. [01-product/01-product-requirements.md](01-product/01-product-requirements.md)
 2. [01-product/02-information-architecture.md](01-product/02-information-architecture.md)
 3. [02-architecture/03-domain-model-and-erd.md](02-architecture/03-domain-model-and-erd.md)
 4. [02-architecture/04-api-spec.md](02-architecture/04-api-spec.md)
 5. [03-execution/05-implementation-backlog.md](03-execution/05-implementation-backlog.md)
+6. [03-execution/06-phase-1-closeout.md](03-execution/06-phase-1-closeout.md)
 
 ## 폴더 구조
 
@@ -36,6 +37,7 @@
 - 도메인 모델: [02-architecture/03-domain-model-and-erd.md](02-architecture/03-domain-model-and-erd.md)
 - API 명세: [02-architecture/04-api-spec.md](02-architecture/04-api-spec.md)
 - 구현 백로그: [03-execution/05-implementation-backlog.md](03-execution/05-implementation-backlog.md)
+- Phase 1 마감 정리: [03-execution/06-phase-1-closeout.md](03-execution/06-phase-1-closeout.md)
 
 ## 운영/참고 문서
 - 실행 모드: [90-operations/frontend-run-modes.md](90-operations/frontend-run-modes.md)
