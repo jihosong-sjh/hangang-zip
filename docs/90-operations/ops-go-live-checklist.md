@@ -1,5 +1,7 @@
 # Ops Go-Live Checklist
 
+이 문서는 배포 직후 smoke test와 운영 설정을 빠르게 점검하기 위한 체크리스트다.
+
 ## 1. GitHub Actions Secrets
 - `EC2_HOST`
 - `EC2_USER`

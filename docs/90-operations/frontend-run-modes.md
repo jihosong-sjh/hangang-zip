@@ -1,5 +1,7 @@
 # Frontend Run Modes
 
+이 문서는 프론트 로컬 실행과 운영 빌드 시점의 모드 차이를 정리한 운영 참고 문서다.
+
 ## Overview
 The frontend supports two data modes:
 

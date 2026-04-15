@@ -16,9 +16,12 @@
 ├── src/                  # 프론트엔드
 ├── backend-skeleton/     # Spring Boot 백엔드
 ├── docs/
-│   ├── backend-transition.md
-│   ├── frontend-run-modes.md
-│   └── deployment-checklist.md
+│   ├── README.md
+│   ├── 01-product/
+│   ├── 02-architecture/
+│   ├── 03-execution/
+│   ├── 90-operations/
+│   └── 91-data/
 └── .env.example
 ```
 
@@ -77,7 +80,7 @@ npm run build:local
 - 가장 빠른 실행 명령: `npm run dev:api`
 
 자세한 내용:
-- [docs/frontend-run-modes.md](docs/frontend-run-modes.md)
+- [docs/90-operations/frontend-run-modes.md](docs/90-operations/frontend-run-modes.md)
 
 ## 백엔드 실행
 백엔드는 `dev(H2)`와 `prod(MySQL)`를 모두 지원한다.
@@ -127,10 +130,10 @@ cd backend-skeleton
 - 운영용 환경변수 정리
 
 체크리스트:
-- [docs/deployment-checklist.md](docs/deployment-checklist.md)
+- [docs/90-operations/deployment-checklist.md](docs/90-operations/deployment-checklist.md)
 
 EC2 한 대 배포 가이드:
-- [docs/aws-ec2-single-server-deploy.md](docs/aws-ec2-single-server-deploy.md)
+- [docs/90-operations/aws-ec2-single-server-deploy.md](docs/90-operations/aws-ec2-single-server-deploy.md)
 
 배포 템플릿 파일:
 - `deploy/nginx/hangang-zip.conf`
@@ -141,4 +144,4 @@ EC2 한 대 배포 가이드:
 - `deploy/scripts/install-server-files.sh`
 
 GitHub Actions 배포 가이드:
-- [docs/github-actions-deploy.md](docs/github-actions-deploy.md)
+- [docs/90-operations/github-actions-deploy.md](docs/90-operations/github-actions-deploy.md)

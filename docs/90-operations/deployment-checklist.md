@@ -1,5 +1,7 @@
 # Deployment Checklist
 
+이 문서는 운영 배포 직전 확인할 체크 항목을 정리한 문서다.
+
 ## 프론트
 - `npm run build` 성공
 - `VITE_PARK_DATA_SOURCE=api` 기준 동작 확인

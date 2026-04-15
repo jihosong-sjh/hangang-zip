@@ -1,5 +1,7 @@
 # Frontend Mock to Spring Boot + MySQL Transition
 
+이 문서는 초기 프론트 mock 구조에서 Spring Boot + MySQL 구조로 전환할 때 작성한 참고 메모다.
+
 ## Goal
 - Keep the current frontend `Park` shape as stable as possible.
 - Replace local mock imports with API fetches with minimal UI changes.
