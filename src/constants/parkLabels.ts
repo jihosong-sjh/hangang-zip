@@ -1,10 +1,12 @@
 import type {
   AmenityType,
+  ParkAccessPointType,
   DeliveryZoneCoordinateSource,
   DeliveryZoneSourceType,
   DeliveryZoneVerificationStatus,
   ParkScoreKey,
   ParkTag,
+  ZoneReviewStatus,
 } from "../types/park";
 
 export const parkTagLabels: Record<ParkTag, string> = {
@@ -33,6 +35,13 @@ export const amenityLabels: Record<AmenityType, string> = {
   playground: "놀이 공간",
 };
 
+export const parkAccessPointTypeLabels: Record<ParkAccessPointType, string> = {
+  entrance: "진입 포인트",
+  station: "지하철 접근",
+  parking: "주차장 접근",
+  plaza: "광장 접근",
+};
+
 export const deliveryZoneSourceLabels: Record<DeliveryZoneSourceType, string> = {
   official: "공식 확인",
   community_verified: "교차 검증",
@@ -43,6 +52,12 @@ export const deliveryZoneVerificationLabels: Record<DeliveryZoneVerificationStat
   verified: "검증 완료",
   needs_review: "검토 필요",
   rejected: "제외됨",
+};
+
+export const zoneReviewStatusLabels: Record<ZoneReviewStatus, string> = {
+  approved: "승인",
+  pending: "검토 대기",
+  rejected: "반려",
 };
 
 export const deliveryZoneCoordinateSourceLabels: Record<DeliveryZoneCoordinateSource, string> = {

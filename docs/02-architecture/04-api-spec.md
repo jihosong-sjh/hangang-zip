@@ -34,8 +34,8 @@
 - `GET /api/parks`
 - `GET /api/parks/{id}`
 - `GET /api/delivery-zones/{zoneId}`
-- 현재 공원 상세 식별자는 `slug`가 아니라 `id`다.
-- 현재 seed 데이터에서는 `id`와 `slug` 값이 같지만, public 응답과 프론트 타입은 `id` 기준으로 맞춰져 있다.
+- 공원 상세 API 식별자는 여전히 `id`다.
+- 프론트 라우트 `/parks/:parkSlug`는 `GET /api/parks` 응답의 `slug`로 `id`를 해석한 뒤 `GET /api/parks/{id}`를 호출한다.
 - 배달존 정책 필드명은 `visibility`가 아니라 `displayPolicy`다.
 
 ### `GET /api/parks`
@@ -46,8 +46,9 @@
 
 응답 필드:
 - 현재 `ParkResponse` 구조 유지
+- `slug` 포함
 - `deliveryZones`는 공개 가능한 요약 정보만 포함
-- 현재 응답에는 `slug`가 없다
+- `accessPoints` 필드는 존재하지만 목록 응답에서는 빈 배열로 유지
 - 현재 응답의 배달존 정책 필드는 `displayPolicy`
 
 ### `GET /api/parks/{id}`
@@ -55,20 +56,29 @@
 
 응답 필드:
 - 공원 기본 정보
+- `slug`
 - 태그/점수/편의시설
+- `accessPoints`
 - 공개 가능한 배달존 목록
 
 현재 포함되지 않는 항목:
-- `slug`
-- 접근 포인트 요약
 - 관련 컬렉션
 
 예시:
 ```json
 {
   "id": "yeouido",
+  "slug": "yeouido",
   "name": "여의도한강공원",
   "primaryTag": "picnic",
+  "accessPoints": [
+    {
+      "id": 5,
+      "type": "station",
+      "name": "여의나루역 방향 진입로",
+      "address": "서울 영등포구 여의동로 330"
+    }
+  ],
   "deliveryZones": [
     {
       "id": "yeouido-mulbit-plaza",
@@ -105,6 +115,10 @@
 - `lastReviewedAt`
 - `evidences`
 - `reviews`
+
+프론트 사용 방식:
+- `/delivery-zones/:zoneId` 직접 진입 시 먼저 이 API를 호출한다.
+- 응답의 `parkId`로 같은 공원의 `GET /api/parks/{id}`를 이어서 호출해 지도 컨텍스트와 바텀시트 공원 정보를 복원한다.
 
 현재 포함되지 않는 항목:
 - `landmarkName`
@@ -260,7 +274,7 @@
 ### 신규 프론트 전환 범위
 - 배달존 클릭 시 `GET /api/delivery-zones/{zoneId}`
 - 맛집 조회 시 `GET /api/delivery-zones/{zoneId}/restaurants`
-- 공원 공유 URL은 프론트 라우팅에서 `/parks/:parkSlug`로 도입하더라도, 현재 백엔드 상세 API 계약은 `id` 기준임
+- 공원 공유 URL은 `/parks/:parkSlug`를 사용하되, 실제 상세 fetch는 `GET /api/parks`의 `slug`를 `id`로 해석한 뒤 `GET /api/parks/{id}`로 연결
 
 ## 비기능 요구사항
 - `GET /api/parks`와 `GET /api/parks/{id}`는 캐시 친화적으로 유지

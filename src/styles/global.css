@@ -60,6 +60,7 @@ button {
 .park-map__summary,
 .park-card__description,
 .bottom-sheet__description,
+.section-copy,
 .recommendation,
 .empty-state p {
   margin: 0;
@@ -389,6 +390,31 @@ button {
   background: #f5faf6;
 }
 
+.detail-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.detail-metrics__item {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.detail-metrics__item span,
+.detail-card span,
+.detail-card p {
+  color: #4c6256;
+}
+
+.detail-metrics__item strong,
+.detail-card strong {
+  color: #173124;
+}
+
 .bottom-sheet__status {
   margin-top: 10px;
   padding: 14px;
@@ -429,10 +455,21 @@ button {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .detail-section__header h3 {
   font-size: 0.95rem;
+}
+
+.detail-action {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #173124;
+  color: #f4fbf6;
 }
 
 .tag-row {
@@ -449,7 +486,8 @@ button {
 }
 
 .delivery-zone-list,
-.restaurant-list {
+.restaurant-list,
+.detail-card-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -458,7 +496,8 @@ button {
 }
 
 .delivery-zone-card,
-.restaurant-card {
+.restaurant-card,
+.detail-card {
   display: grid;
   gap: 6px;
   width: 100%;
@@ -469,6 +508,24 @@ button {
   color: inherit;
   text-align: left;
   text-decoration: none;
+}
+
+.detail-card__header,
+.detail-card__meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.detail-card__meta {
+  font-size: 0.9rem;
+}
+
+.detail-card__meta a {
+  color: #a33b17;
+  font-weight: 600;
 }
 
 .delivery-zone-card__select {
@@ -508,13 +565,16 @@ button {
 }
 
 .delivery-zone-card strong,
-.restaurant-card strong {
+.restaurant-card strong,
+.detail-card strong {
   color: #173124;
 }
 
 .delivery-zone-card p,
 .delivery-zone-card span,
-.restaurant-card p {
+.restaurant-card p,
+.detail-card p,
+.detail-card span {
   margin: 0;
   color: #4c6256;
 }
@@ -685,6 +745,10 @@ button {
 
   .score-meter {
     padding: 10px;
+  }
+
+  .detail-metrics {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .restaurant-card__top {

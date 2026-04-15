@@ -57,6 +57,11 @@
 - React Router 도입
 - `/parks/:parkSlug`
 - `/delivery-zones/:zoneId`
+- 상태:
+  - 완료
+- 구현 메모:
+  - `MapPage` 단일 UX를 유지한 채 URL을 상태의 기준값으로 사용
+  - 직접 진입, 새로고침, 뒤로가기/앞으로가기 복원 동작 확인
 
 완료 기준:
 - 공원/배달존 공유 URL 가능
@@ -64,6 +69,11 @@
 ### P2-2. 공원 상세 페이지화
 - 단일 맵 화면을 유지하되 park detail route 추가
 - 공원별 설명, 접근 포인트, 배달존 섹션 분리
+- 상태:
+  - 완료
+- 구현 메모:
+  - `parkSlug -> parkId` 해석은 `GET /api/parks` 응답의 `slug`를 기준으로 단일화
+  - public park detail 응답에 `slug`, `accessPoints`를 추가하고 `GET /api/parks/{id}` 호환 유지
 
 완료 기준:
 - 공원별 개별 landing 가능
@@ -71,6 +81,11 @@
 ### P2-3. 배달존 상세 페이지화
 - 배달존 상세 API 연결
 - source, 확인일, landmark, walkway note 노출
+- 상태:
+  - 완료
+- 구현 메모:
+  - `/delivery-zones/:zoneId` 진입 시 zone detail을 먼저 불러오고 `parkId`로 공원 상세를 이어서 로드
+  - evidence/review 메타데이터로 공식 지점과 후보 지점 차이를 바텀시트에서 분명히 표시
 
 완료 기준:
 - 후보 지점과 공식 지점 차이가 명확하게 드러남

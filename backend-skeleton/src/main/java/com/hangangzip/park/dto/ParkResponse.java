@@ -5,6 +5,7 @@ import java.util.List;
 
 public record ParkResponse(
     String id,
+    String slug,
     String name,
     BigDecimal latitude,
     BigDecimal longitude,
@@ -14,6 +15,7 @@ public record ParkResponse(
     ParkScoresResponse scores,
     List<String> amenities,
     String recommendation,
-    List<ParkDeliveryZoneResponse> deliveryZones
+    List<ParkDeliveryZoneResponse> deliveryZones,
+    List<ParkAccessPointResponse> accessPoints
 ) {
 }

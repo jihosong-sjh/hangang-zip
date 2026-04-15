@@ -2,8 +2,10 @@ package com.hangangzip.park.service;
 
 import com.hangangzip.park.domain.AmenityType;
 import com.hangangzip.park.domain.DeliveryZoneEntity;
+import com.hangangzip.park.domain.ParkAccessPointEntity;
 import com.hangangzip.park.domain.ParkEntity;
 import com.hangangzip.park.domain.ParkTag;
+import com.hangangzip.park.dto.ParkAccessPointResponse;
 import com.hangangzip.park.dto.ParkDeliveryZoneResponse;
 import com.hangangzip.park.dto.ParkResponse;
 import com.hangangzip.park.dto.ParkScoresResponse;
@@ -15,9 +17,14 @@ public final class ParkMapper {
     private ParkMapper() {
     }
 
-    public static ParkResponse toResponse(ParkEntity park, List<ParkDeliveryZoneResponse> deliveryZones) {
+    public static ParkResponse toResponse(
+        ParkEntity park,
+        List<ParkDeliveryZoneResponse> deliveryZones,
+        List<ParkAccessPointResponse> accessPoints
+    ) {
         return new ParkResponse(
             park.getId(),
+            park.getSlug(),
             park.getName(),
             park.getLatitude(),
             park.getLongitude(),
@@ -39,7 +46,20 @@ public final class ParkMapper {
                 .map(ParkMapper::toClientValue)
                 .toList(),
             park.getRecommendation(),
-            deliveryZones
+            deliveryZones,
+            accessPoints
+        );
+    }
+
+    public static ParkAccessPointResponse toAccessPointResponse(ParkAccessPointEntity accessPoint) {
+        return new ParkAccessPointResponse(
+            accessPoint.getId(),
+            accessPoint.getType(),
+            accessPoint.getName(),
+            accessPoint.getLatitude(),
+            accessPoint.getLongitude(),
+            accessPoint.getAddress(),
+            accessPoint.getNote()
         );
     }
 

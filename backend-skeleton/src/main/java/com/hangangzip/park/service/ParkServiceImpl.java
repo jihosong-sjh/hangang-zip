@@ -3,10 +3,12 @@ package com.hangangzip.park.service;
 import com.hangangzip.park.domain.DeliveryZoneEntity;
 import com.hangangzip.park.domain.ParkEntity;
 import com.hangangzip.park.domain.ParkTag;
+import com.hangangzip.park.dto.ParkAccessPointResponse;
 import com.hangangzip.park.dto.ParkDeliveryZoneResponse;
 import com.hangangzip.park.dto.ParkListResponse;
 import com.hangangzip.park.dto.ParkResponse;
 import com.hangangzip.park.repository.DeliveryZoneRepository;
+import com.hangangzip.park.repository.ParkAccessPointRepository;
 import com.hangangzip.park.repository.ParkRepository;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -21,10 +23,16 @@ public class ParkServiceImpl implements ParkService {
 
     private final ParkRepository parkRepository;
     private final DeliveryZoneRepository deliveryZoneRepository;
+    private final ParkAccessPointRepository parkAccessPointRepository;
 
-    public ParkServiceImpl(ParkRepository parkRepository, DeliveryZoneRepository deliveryZoneRepository) {
+    public ParkServiceImpl(
+        ParkRepository parkRepository,
+        DeliveryZoneRepository deliveryZoneRepository,
+        ParkAccessPointRepository parkAccessPointRepository
+    ) {
         this.parkRepository = parkRepository;
         this.deliveryZoneRepository = deliveryZoneRepository;
+        this.parkAccessPointRepository = parkAccessPointRepository;
     }
 
     @Override
@@ -36,7 +44,8 @@ public class ParkServiceImpl implements ParkService {
         List<ParkResponse> items = parks.stream()
             .map((park) -> ParkMapper.toResponse(
                 park,
-                deliveryZonesByParkId.getOrDefault(park.getId(), Collections.emptyList())
+                deliveryZonesByParkId.getOrDefault(park.getId(), Collections.emptyList()),
+                Collections.emptyList()
             ))
             .toList();
 
@@ -59,7 +68,13 @@ public class ParkServiceImpl implements ParkService {
             .map(ParkMapper::toDeliveryZoneResponse)
             .toList();
 
-        return ParkMapper.toResponse(park, visibleDeliveryZones);
+        List<ParkAccessPointResponse> accessPoints = parkAccessPointRepository
+            .findAllByParkIdOrderByIdAsc(park.getId())
+            .stream()
+            .map(ParkMapper::toAccessPointResponse)
+            .toList();
+
+        return ParkMapper.toResponse(park, visibleDeliveryZones, accessPoints);
     }
 
     private ParkTag parseTag(String tag) {

@@ -27,6 +27,7 @@ class ParkControllerIntegrationTest {
         mockMvc.perform(get("/api/parks"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.count").value(11))
+            .andExpect(jsonPath("$.items[*].slug", hasItems("gangseo", "yeouido", "ttukseom")))
             .andExpect(jsonPath("$.items[*].id", hasItems("gangseo", "yeouido", "ttukseom")));
     }
 
@@ -35,6 +36,7 @@ class ParkControllerIntegrationTest {
         mockMvc.perform(get("/api/parks/yeouido"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id").value("yeouido"))
+            .andExpect(jsonPath("$.slug").value("yeouido"))
             .andExpect(jsonPath("$.primaryTag").value("picnic"))
             .andExpect(jsonPath("$.tags", contains("family", "night", "picnic")))
             .andExpect(jsonPath("$.amenities", contains(
@@ -46,6 +48,9 @@ class ParkControllerIntegrationTest {
                 "restroom"
             )))
             .andExpect(jsonPath("$.scores.picnic").value(5))
+            .andExpect(jsonPath("$.accessPoints.length()").value(1))
+            .andExpect(jsonPath("$.accessPoints[0].type").value("station"))
+            .andExpect(jsonPath("$.accessPoints[0].name").value("여의나루역 방향 진입로"))
             .andExpect(jsonPath("$.deliveryZones.length()").value(3))
             .andExpect(jsonPath("$.deliveryZones[0].id").value("yeouido-mulbit-plaza"))
             .andExpect(jsonPath("$.deliveryZones[0].sourceType").value("official"))
