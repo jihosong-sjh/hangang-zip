@@ -4,11 +4,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.hangangzip.park.dto.NearbyRestaurantResponse;
+import com.hangangzip.park.service.DeliveryZoneRestaurantCache;
+import com.hangangzip.park.service.DeliveryZoneRestaurantProvider;
+import com.hangangzip.park.service.RestaurantProviderUnavailableException;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -17,6 +25,17 @@ class DeliveryZoneControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private DeliveryZoneRestaurantCache deliveryZoneRestaurantCache;
+
+    @MockBean
+    private DeliveryZoneRestaurantProvider deliveryZoneRestaurantProvider;
+
+    @BeforeEach
+    void clearRestaurantCache() {
+        deliveryZoneRestaurantCache.clear();
+    }
 
     @Test
     void getDeliveryZoneReturnsVisibleZoneDetail() throws Exception {
@@ -60,5 +79,51 @@ class DeliveryZoneControllerIntegrationTest {
             .andExpect(jsonPath("$.evidences[0].evidenceScore").value(75))
             .andExpect(jsonPath("$.reviews[0].reviewStatus").value("pending"))
             .andExpect(jsonPath("$.reviews[0].reviewedBy").value("system_migration"));
+    }
+
+    @Test
+    void getDeliveryZoneRestaurantsReturnsNearbyRestaurants() throws Exception {
+        BDDMockito.given(deliveryZoneRestaurantProvider.searchNearbyRestaurants(ArgumentMatchers.any()))
+            .willReturn(
+                java.util.List.of(
+                    new NearbyRestaurantResponse(
+                        "123",
+                        "한강치킨",
+                        37.5283,
+                        126.9338,
+                        "서울 영등포구 여의동로 330",
+                        "음식점 > 치킨",
+                        180,
+                        "02-000-0000",
+                        "https://place.map.kakao.com/123"
+                    )
+                )
+            );
+
+        mockMvc.perform(get("/api/delivery-zones/yeouido-mulbit-plaza/restaurants"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.zoneId").value("yeouido-mulbit-plaza"))
+            .andExpect(jsonPath("$.stale").value(false))
+            .andExpect(jsonPath("$.count").value(1))
+            .andExpect(jsonPath("$.items[0].id").value("123"))
+            .andExpect(jsonPath("$.items[0].name").value("한강치킨"));
+    }
+
+    @Test
+    void getDeliveryZoneRestaurantsReturnsNotFoundForMissingZone() throws Exception {
+        mockMvc.perform(get("/api/delivery-zones/does-not-exist/restaurants"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("ZONE_NOT_FOUND"));
+    }
+
+    @Test
+    void getDeliveryZoneRestaurantsReturnsBadGatewayWhenProviderFailsWithoutStaleCache() throws Exception {
+        BDDMockito.given(deliveryZoneRestaurantProvider.searchNearbyRestaurants(ArgumentMatchers.any()))
+            .willThrow(new RestaurantProviderUnavailableException("provider unavailable"));
+
+        mockMvc.perform(get("/api/delivery-zones/yeouido-mulbit-plaza/restaurants"))
+            .andExpect(status().isBadGateway())
+            .andExpect(jsonPath("$.code").value("RESTAURANT_PROVIDER_UNAVAILABLE"))
+            .andExpect(jsonPath("$.message").value("provider unavailable"));
     }
 }

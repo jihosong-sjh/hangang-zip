@@ -4,23 +4,15 @@ import { ParkBottomSheet } from "../components/ParkBottomSheet";
 import { ParkFilterBar } from "../components/ParkFilterBar";
 import { ParkMap } from "../components/ParkMap";
 import { filterParks } from "../lib/filterParks";
-import { ApiRequestError, getDeliveryZone, getPark, getParkDataSource, getParks } from "../lib/parkApi";
-import { searchNearbyRestaurants } from "../lib/searchNearbyRestaurants";
+import {
+  ApiRequestError,
+  getDeliveryZone,
+  getDeliveryZoneRestaurants,
+  getPark,
+  getParkDataSource,
+  getParks,
+} from "../lib/parkApi";
 import type { DeliveryZone, DeliveryZoneDetail, NearbyRestaurant, Park, ParkTag } from "../types/park";
-
-type SearchAnchor = {
-  id: string;
-  label: string;
-  latitude: number;
-  longitude: number;
-};
-
-function getVisibleDeliveryZones(park: Park | null) {
-  return park?.deliveryZones.filter(
-    (deliveryZone) =>
-      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
-  ) ?? [];
-}
 
 function isAbortError(error: unknown) {
   return error instanceof DOMException && error.name === "AbortError";
@@ -73,18 +65,6 @@ export function MapPage() {
   const selectedPark = selectedParkDetailMatch ?? selectedParkSummary;
   const selectedDeliveryZoneId = zoneId ?? null;
 
-  const selectedDeliveryZoneSummary = useMemo(() => {
-    if (selectedDeliveryZoneDetail?.id === selectedDeliveryZoneId) {
-      return selectedDeliveryZoneDetail;
-    }
-
-    if (!selectedDeliveryZoneId || !selectedPark) {
-      return null;
-    }
-
-    return getVisibleDeliveryZones(selectedPark).find((deliveryZone) => deliveryZone.id === selectedDeliveryZoneId) ?? null;
-  }, [selectedDeliveryZoneDetail, selectedDeliveryZoneId, selectedPark]);
-
   const parks = useMemo(() => {
     if (!selectedPark || visibleParks.some((park) => park.id === selectedPark.id)) {
       return visibleParks;
@@ -92,28 +72,6 @@ export function MapPage() {
 
     return [selectedPark, ...visibleParks];
   }, [selectedPark, visibleParks]);
-
-  const activeSearchAnchor = useMemo<SearchAnchor | null>(() => {
-    if (selectedDeliveryZoneSummary) {
-      return {
-        id: selectedDeliveryZoneSummary.id,
-        label: selectedDeliveryZoneSummary.name,
-        latitude: selectedDeliveryZoneSummary.latitude,
-        longitude: selectedDeliveryZoneSummary.longitude,
-      };
-    }
-
-    if (!selectedPark) {
-      return null;
-    }
-
-    return {
-      id: selectedPark.id,
-      label: selectedPark.name,
-      latitude: selectedPark.latitude,
-      longitude: selectedPark.longitude,
-    };
-  }, [selectedDeliveryZoneSummary, selectedPark]);
 
   const isParkSlugNotFound =
     Boolean(parkSlug) && !zoneId && !isLoading && !error && selectedParkSummary === null;
@@ -256,29 +214,27 @@ export function MapPage() {
   }, [zoneId]);
 
   useEffect(() => {
-    let isCancelled = false;
-
-    if (!activeSearchAnchor) {
+    if (!zoneId) {
       setNearbyRestaurants([]);
       setRestaurantError(null);
       setIsRestaurantLoading(false);
       return;
     }
 
+    const controller = new AbortController();
+
+    setNearbyRestaurants([]);
     setIsRestaurantLoading(true);
     setRestaurantError(null);
 
-    searchNearbyRestaurants({
-      latitude: activeSearchAnchor.latitude,
-      longitude: activeSearchAnchor.longitude,
-    })
+    getDeliveryZoneRestaurants(zoneId, controller.signal)
       .then((restaurants) => {
-        if (!isCancelled) {
+        if (!controller.signal.aborted) {
           setNearbyRestaurants(restaurants);
         }
       })
       .catch((fetchError: unknown) => {
-        if (isCancelled) {
+        if (isAbortError(fetchError)) {
           return;
         }
 
@@ -286,19 +242,17 @@ export function MapPage() {
         setRestaurantError(
           fetchError instanceof Error
             ? fetchError.message
-            : "근처 맛집을 불러오는 중 오류가 발생했습니다.",
+            : "배달존 기준 근처 맛집을 불러오는 중 오류가 발생했습니다.",
         );
       })
       .finally(() => {
-        if (!isCancelled) {
+        if (!controller.signal.aborted) {
           setIsRestaurantLoading(false);
         }
       });
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [activeSearchAnchor]);
+    return () => controller.abort();
+  }, [zoneId]);
 
   const handleSelectTag = (tag: ParkTag) => {
     setSelectedTag((current) => (current === tag ? null : tag));
@@ -390,7 +344,6 @@ export function MapPage() {
           deliveryZone={selectedDeliveryZoneDetail}
           selectedDeliveryZoneId={selectedDeliveryZoneId}
           nearbyRestaurants={nearbyRestaurants}
-          restaurantAnchorLabel={activeSearchAnchor?.label ?? null}
           isParkLoading={Boolean(selectedParkId) && isParkDetailLoading}
           parkError={parkDetailError}
           isParkNotFound={isParkSlugNotFound || isParkNotFound}

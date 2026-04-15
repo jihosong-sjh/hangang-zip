@@ -129,3 +129,27 @@
   ]
 }
 ```
+
+## `GET /api/delivery-zones/yeouido-mulbit-plaza/restaurants`
+
+```json
+{
+  "zoneId": "yeouido-mulbit-plaza",
+  "stale": false,
+  "cachedAt": "2026-04-15T21:00:00",
+  "items": [
+    {
+      "id": "123",
+      "name": "한강치킨",
+      "latitude": 37.5283,
+      "longitude": 126.9338,
+      "address": "서울 영등포구 여의동로 330",
+      "categoryName": "음식점 > 치킨",
+      "distance": 180,
+      "phone": "02-000-0000",
+      "placeUrl": "https://place.map.kakao.com/123"
+    }
+  ],
+  "count": 1
+}
+```

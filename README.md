@@ -1,6 +1,6 @@
 # Hangang ZIP
 
-서울 한강공원 11개를 지도에서 탐색하고, 공원별 배달존과 근처 맛집을 확인하는 MVP 웹앱이다.
+서울 한강공원 11개를 지도에서 탐색하고, 공원별 배달존과 배달존 기준 근처 맛집을 확인하는 MVP 웹앱이다.
 
 현재 상태:
 - 프론트: React + TypeScript + Vite
@@ -70,6 +70,7 @@ npm run build:local
 - 프론트 로컬 데이터(`src/data/parks.ts`) 사용
 - `VITE_KAKAO_MAP_JS_KEY` 필요
 - UI 개발과 레이아웃 점검에 적합
+- 배달존 상세의 맛집 목록은 백엔드 API가 있어야 조회된다
 - 배포 빌드에는 사용하지 않음
 
 ### API 모드
@@ -106,6 +107,8 @@ cd backend-skeleton
 - `GET /api/parks`
 - `GET /api/parks/{id}`
 - `GET /api/parks?tag=running`
+- `GET /api/delivery-zones/{zoneId}`
+- `GET /api/delivery-zones/{zoneId}/restaurants`
 
 자세한 백엔드 구조:
 - [backend-skeleton/README.md](backend-skeleton/README.md)
@@ -114,7 +117,7 @@ cd backend-skeleton
 현재 프론트와 백엔드가 보여주는 데이터는 실제 한강공원을 기준으로 정리한 서비스용 초안 데이터다.
 좌표는 공식 한강공원 안내 페이지의 공원명·대표 시설 정보를 기준으로 지도 서비스에서 보정한 대표 위치다.
 배달존은 공식 확인된 지점과 공식 주소/웹 자료를 바탕으로 검토 중인 후보 지점을 함께 포함한다.
-근처 맛집은 카카오맵 장소 검색 결과를 보여주며, 실제 배달 가능 여부를 보장하지 않는다.
+근처 맛집은 배달존 기준으로 백엔드가 조회한 카카오 로컬 장소 검색 결과를 보여주며, 실제 배달 가능 여부를 보장하지 않는다.
 
 즉:
 - API는 실제로 동작함

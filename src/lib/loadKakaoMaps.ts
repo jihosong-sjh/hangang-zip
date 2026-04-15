@@ -20,14 +20,13 @@ function buildSdkUrl() {
   const params = new URLSearchParams({
     appkey: getSdkKey(),
     autoload: "false",
-    libraries: "services",
   });
 
   return `${SDK_URL}?${params.toString()}`;
 }
 
 export async function loadKakaoMaps(): Promise<KakaoMapsSdk> {
-  if (window.kakao?.maps?.services) {
+  if (window.kakao?.maps?.Map) {
     return window.kakao as KakaoMapsSdk;
   }
 
@@ -49,8 +48,8 @@ export async function loadKakaoMaps(): Promise<KakaoMapsSdk> {
       }
 
       maps.load(() => {
-        if (!window.kakao?.maps?.services) {
-          reject(new Error("카카오맵 services 라이브러리를 불러오지 못했습니다."));
+        if (!window.kakao?.maps?.Map) {
+          reject(new Error("카카오맵 SDK를 초기화하지 못했습니다."));
           return;
         }
 
@@ -63,6 +62,11 @@ export async function loadKakaoMaps(): Promise<KakaoMapsSdk> {
     };
 
     if (existingScript) {
+      if (window.kakao?.maps?.Map) {
+        resolve(window.kakao as KakaoMapsSdk);
+        return;
+      }
+
       if (window.kakao?.maps?.load) {
         finalizeLoad();
         return;

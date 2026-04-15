@@ -34,6 +34,7 @@
 - `GET /api/parks`
 - `GET /api/parks/{id}`
 - `GET /api/delivery-zones/{zoneId}`
+- `GET /api/delivery-zones/{zoneId}/restaurants`
 - 공원 상세 API 식별자는 여전히 `id`다.
 - 프론트 라우트 `/parks/:parkSlug`는 `GET /api/parks` 응답의 `slug`로 `id`를 해석한 뒤 `GET /api/parks/{id}`를 호출한다.
 - 배달존 정책 필드명은 `visibility`가 아니라 `displayPolicy`다.
@@ -167,17 +168,56 @@
 배달존 기준 주변 맛집 조회
 
 상태:
-- 미구현
+- 구현됨
 
-목표 쿼리 파라미터:
-- `category`
-- `radius`
-- `size`
-- `sort`
+현재 쿼리 파라미터:
+- 없음
 
 정책:
 - public zone만 허용
-- 백엔드 캐시 사용 권장
+- 좌표 anchor는 요청 zone의 `latitude`, `longitude`를 사용
+- 프론트 `/parks/:parkSlug`에서는 호출하지 않고 `/delivery-zones/:zoneId`에서만 호출
+- 프론트는 별도 SDK fallback 없이 이 API 응답만 사용
+
+provider / cache 정책:
+- provider: Kakao Local REST API category search (`FD6`, distance sort)
+- success 결과 TTL: 10분
+- empty 결과 TTL: 3분
+- stale fallback 허용: 1시간
+- provider 실패 시 stale cache가 있으면 `200 OK` + `"stale": true`
+- provider 실패 시 stale cache가 없으면 `502 Bad Gateway`
+
+응답 예시:
+```json
+{
+  "zoneId": "yeouido-mulbit-plaza",
+  "stale": false,
+  "cachedAt": "2026-04-15T21:00:00",
+  "items": [
+    {
+      "id": "123",
+      "name": "한강치킨",
+      "latitude": 37.5283,
+      "longitude": 126.9338,
+      "address": "서울 영등포구 여의동로 330",
+      "categoryName": "음식점 > 치킨",
+      "distance": 180,
+      "phone": "02-000-0000",
+      "placeUrl": "https://place.map.kakao.com/123"
+    }
+  ],
+  "count": 1
+}
+```
+
+오류 예시 (`502`):
+```json
+{
+  "code": "RESTAURANT_PROVIDER_UNAVAILABLE",
+  "message": "Kakao Local provider request failed.",
+  "timestamp": "2026-04-15T21:00:00"
+}
+```
 
 ### `GET /api/collections/{slug}`
 컬렉션 상세 조회
@@ -275,10 +315,13 @@
 - 배달존 클릭 시 `GET /api/delivery-zones/{zoneId}`
 - 맛집 조회 시 `GET /api/delivery-zones/{zoneId}/restaurants`
 - 공원 공유 URL은 `/parks/:parkSlug`를 사용하되, 실제 상세 fetch는 `GET /api/parks`의 `slug`를 `id`로 해석한 뒤 `GET /api/parks/{id}`로 연결
+- 공원 상세(`/parks/:parkSlug`)에서는 공원 중심 맛집 검색 기본값을 두지 않는다
+- 배달존 상세(`/delivery-zones/:zoneId`)에서만 "이 배달존 기준 근처 맛집" 섹션을 노출한다
 
 ## 비기능 요구사항
 - `GET /api/parks`와 `GET /api/parks/{id}`는 캐시 친화적으로 유지
-- `restaurants` 응답은 provider rate limit을 고려해 TTL 캐시 적용
+- `restaurants` 응답은 provider rate limit을 고려해 인메모리 TTL 캐시 적용
+- `restaurants` 캐시 정책은 `success=10m`, `empty=3m`, `stale=1h`
 - `displayPolicy`가 `ops_only`인 지점은 public API에 절대 노출하지 않음
 - 운영 변경 이력은 review 엔티티로 남김
 

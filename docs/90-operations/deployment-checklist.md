@@ -9,18 +9,23 @@
 - `VITE_KAKAO_MAP_JS_KEY`가 운영용 JavaScript 키인지 확인
 - Kakao Developers에 배포 도메인이 등록되어 있는지 확인
 - 모바일 화면에서 필터, 지도, 바텀시트가 정상 동작하는지 확인
-- 카카오맵 SDK와 장소 검색이 배포 환경에서 정상 응답하는지 확인
+- `/parks/:parkSlug`에서 공원 상세만 노출되고 맛집 조회가 실행되지 않는지 확인
+- `/delivery-zones/{zoneId}`에서만 근처 맛집 loading/error/empty 상태가 노출되는지 확인
 
 ## 백엔드
 - `./gradlew test` 성공
 - `GET /api/parks` 응답 확인
 - `GET /api/parks/{id}` 응답 확인
 - `GET /api/parks?tag=running` 응답 확인
+- `GET /api/delivery-zones/{zoneId}` 응답 확인
+- `GET /api/delivery-zones/{zoneId}/restaurants` 응답 확인
 - `dev`와 `prod` 프로파일이 의도대로 분리되는지 확인
 - CORS `allowed-origin`을 실제 프론트 도메인으로 조정
 - `prod`에서 MySQL 연결 성공 여부 확인
 - `prod`에서 Flyway migration이 정상 적용되는지 확인
 - `prod`에서 초기 데이터 migration이 의도대로 적용되는지 확인
+- `KAKAO_LOCAL_REST_API_KEY`가 운영 값으로 설정됐는지 확인
+- 인메모리 cache TTL이 `success=10m`, `empty=3m`, `stale=1h`로 설정됐는지 확인
 
 ## 데이터
 - 서비스용 초안 데이터가 실제 운영 기준에 맞는지 확인

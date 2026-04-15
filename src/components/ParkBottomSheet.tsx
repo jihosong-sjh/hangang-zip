@@ -29,7 +29,6 @@ type ParkBottomSheetProps = {
   deliveryZone: DeliveryZoneDetail | null;
   selectedDeliveryZoneId: string | null;
   nearbyRestaurants: NearbyRestaurant[];
-  restaurantAnchorLabel: string | null;
   isParkLoading?: boolean;
   parkError?: string | null;
   isParkNotFound?: boolean;
@@ -95,24 +94,20 @@ function formatDateTime(value: string | null) {
 
 function renderRestaurantSection(props: {
   nearbyRestaurants: NearbyRestaurant[];
-  restaurantAnchorLabel: string | null;
+  zoneName: string;
   isRestaurantLoading: boolean;
   restaurantError: string | null;
 }) {
-  const { nearbyRestaurants, restaurantAnchorLabel, isRestaurantLoading, restaurantError } = props;
+  const { nearbyRestaurants, zoneName, isRestaurantLoading, restaurantError } = props;
 
   return (
     <DetailSection title="근처 맛집">
-      {restaurantAnchorLabel ? (
-        <p className="section-caption">
-          {restaurantAnchorLabel} 기준 거리순 결과입니다. 실제 배달 가능 여부를 보장하지는 않습니다.
-        </p>
-      ) : null}
+      <p className="section-caption">{zoneName} 기준 거리순 결과입니다. 실제 배달 가능 여부를 보장하지는 않습니다.</p>
 
       {isRestaurantLoading ? (
         <div className="bottom-sheet__status">
           <h3>근처 맛집을 찾는 중입니다.</h3>
-          <p>카카오맵 장소 데이터를 조회하고 있습니다.</p>
+          <p>이 배달존 기준 근처 맛집을 조회하고 있습니다.</p>
         </div>
       ) : null}
 
@@ -126,7 +121,7 @@ function renderRestaurantSection(props: {
       {!isRestaurantLoading && !restaurantError && nearbyRestaurants.length === 0 ? (
         <div className="bottom-sheet__status">
           <h3>검색된 맛집이 없습니다.</h3>
-          <p>다른 배달존이나 공원 기준으로 다시 확인해보세요.</p>
+          <p>이 배달존 기준으로는 검색된 맛집이 없습니다.</p>
         </div>
       ) : null}
 
@@ -180,7 +175,6 @@ export function ParkBottomSheet({
   deliveryZone,
   selectedDeliveryZoneId,
   nearbyRestaurants,
-  restaurantAnchorLabel,
   isParkLoading = false,
   parkError = null,
   isParkNotFound = false,
@@ -367,7 +361,7 @@ export function ParkBottomSheet({
 
         {renderRestaurantSection({
           nearbyRestaurants,
-          restaurantAnchorLabel,
+          zoneName: deliveryZone.name,
           isRestaurantLoading,
           restaurantError,
         })}
@@ -542,13 +536,6 @@ export function ParkBottomSheet({
           ))}
         </div>
       </DetailSection>
-
-      {renderRestaurantSection({
-        nearbyRestaurants,
-        restaurantAnchorLabel,
-        isRestaurantLoading,
-        restaurantError,
-      })}
     </aside>
   );
 }

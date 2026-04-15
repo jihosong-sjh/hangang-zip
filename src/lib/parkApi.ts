@@ -1,5 +1,5 @@
 import { parks as mockParks } from "../data/parks";
-import type { DeliveryZoneDetail, Park, ParkTag } from "../types/park";
+import type { DeliveryZoneDetail, NearbyRestaurant, Park, ParkTag } from "../types/park";
 
 type ParkDataSource = "mock" | "api";
 
@@ -161,4 +161,18 @@ export async function getDeliveryZone(
   }
 
   return (await response.json()) as DeliveryZoneDetail;
+}
+
+export async function getDeliveryZoneRestaurants(
+  zoneId: string,
+  signal?: AbortSignal,
+): Promise<NearbyRestaurant[]> {
+  const response = await fetch(`${apiBaseUrl}/api/delivery-zones/${zoneId}/restaurants`, { signal });
+
+  if (!response.ok) {
+    throw await parseErrorResponse(response, "배달존 기준 근처 맛집을 불러오지 못했습니다.");
+  }
+
+  const payload = (await response.json()) as { items: NearbyRestaurant[] };
+  return payload.items;
 }
