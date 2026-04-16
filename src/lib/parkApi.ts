@@ -107,15 +107,12 @@ function buildMockZoneDetail(zoneId: string): DeliveryZoneDetail {
     throw new ApiRequestError(`배달존 상세를 찾을 수 없습니다. (${zoneId})`, 404, "ZONE_NOT_FOUND");
   }
 
-  const evidenceScore =
-    zone.sourceType === "official" ? 95 : zone.sourceType === "community_verified" ? 75 : 45;
   const reviewStatus = zone.verificationStatus === "verified" ? "approved" : "pending";
 
   return {
     ...zone,
     parkId: park.id,
     parkName: park.name,
-    confidenceScore: evidenceScore,
     official: zone.sourceType === "official",
     lastReviewedAt: `${zone.sourceCheckedAt}T00:00:00`,
     evidences: [
@@ -126,7 +123,7 @@ function buildMockZoneDetail(zoneId: string): DeliveryZoneDetail {
         sourceUrl: zone.sourceUrl,
         sourceExcerpt: zone.description,
         checkedAt: zone.sourceCheckedAt,
-        evidenceScore,
+        evidenceScore: zone.confidenceScore,
         primary: true,
       },
     ],
@@ -140,7 +137,7 @@ function buildMockZoneDetail(zoneId: string): DeliveryZoneDetail {
             : "공개 출처 기반 후보 지점으로 운영 검토가 필요함",
         reviewedBy: zone.sourceType === "official" ? "ops_seed" : "community_seed",
         reviewedAt: `${zone.sourceCheckedAt}T00:00:00`,
-        resultConfidenceScore: evidenceScore,
+        resultConfidenceScore: zone.confidenceScore,
       },
     ],
   };

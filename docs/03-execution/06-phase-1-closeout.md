@@ -24,7 +24,7 @@
 
 ### 공개 API 구조
 - 기존 `GET /api/parks`와 `GET /api/parks/{id}` 응답 호환을 유지했다.
-- public visibility 기준으로만 공원 목록/상세에 배달존을 노출하도록 정리했다.
+- `displayPolicy` 기준으로 공개 가능한 배달존만 공원 목록/상세에 노출하도록 정리했다.
 - 신규 `GET /api/delivery-zones/{zoneId}` 상세 API를 추가했다.
 - zone detail 응답에 evidence/review 메타데이터를 포함하도록 확장했다.
 
@@ -49,14 +49,14 @@
 
 ### 운영 부채
 - 데이터 검수 흐름이 여전히 migration + 문서/CSV 중심이다.
-- 운영자가 evidence, review, visibility를 수정할 관리 UI가 없다.
+- 운영자가 evidence, review, `displayPolicy`를 수정할 관리 UI가 없다.
 - low-confidence / limited 데이터의 UI 표현 규칙이 아직 약하다.
 
 ## 3. Phase 2로 넘어가기 전에 확인할 점
 
 1. Phase 2의 기준을 `라우팅/공유 URL 도입`으로 확정할지 먼저 결정해야 한다.
 2. 공원 상세 식별자를 `id` 그대로 유지할지, `slug`를 별도 도입할지 정해야 한다.
-3. `displayPolicy`와 `visibility` 중 어떤 용어를 코드/문서 표준으로 삼을지 통일이 필요하다.
+3. 문서 용어를 `visibility`가 아니라 `displayPolicy`로 계속 유지할지 확정해야 한다.
 4. 맛집 조회를 프론트 직접 호출로 유지할지, `GET /api/delivery-zones/{zoneId}/restaurants`로 옮길지 결정해야 한다.
 5. limited/ops_only/rejected 데이터의 사용자 노출 규칙을 UI와 API에서 같은 기준으로 맞춰야 한다.
 6. seed data와 운영 데이터의 분리 시점을 Phase 2 전에 할지, Ops Console 이후로 미룰지 정해야 한다.

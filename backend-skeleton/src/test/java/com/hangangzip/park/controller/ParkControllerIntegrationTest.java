@@ -54,7 +54,23 @@ class ParkControllerIntegrationTest {
             .andExpect(jsonPath("$.deliveryZones.length()").value(3))
             .andExpect(jsonPath("$.deliveryZones[0].id").value("yeouido-mulbit-plaza"))
             .andExpect(jsonPath("$.deliveryZones[0].sourceType").value("official"))
-            .andExpect(jsonPath("$.deliveryZones[0].verificationStatus").value("verified"));
+            .andExpect(jsonPath("$.deliveryZones[0].verificationStatus").value("verified"))
+            .andExpect(jsonPath("$.deliveryZones[0].displayPolicy").value("public"))
+            .andExpect(jsonPath("$.deliveryZones[0].confidenceScore").value(95));
+    }
+
+    @Test
+    void getParkIncludesLimitedZoneAndHidesOpsOnlyZone() throws Exception {
+        mockMvc.perform(get("/api/parks/gangseo"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.deliveryZones.length()").value(1))
+            .andExpect(jsonPath("$.deliveryZones[0].id").value("gangseo-eco-gate"))
+            .andExpect(jsonPath("$.deliveryZones[0].displayPolicy").value("limited"))
+            .andExpect(jsonPath("$.deliveryZones[0].confidenceScore").value(45));
+
+        mockMvc.perform(get("/api/parks/jamsil"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.deliveryZones.length()").value(0));
     }
 
     @Test

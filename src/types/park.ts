@@ -26,7 +26,7 @@ export type DeliveryZoneVerificationStatus = "verified" | "needs_review" | "reje
 
 export type DeliveryZoneCoordinateSource = "official" | "geocoded" | "manual";
 
-export type DeliveryZoneDisplayPolicy = "public" | "ops_only";
+export type DeliveryZoneDisplayPolicy = "public" | "limited" | "ops_only";
 
 export type DeliveryZoneEvidenceSourceType =
   | "official"
@@ -59,6 +59,7 @@ export type DeliveryZone = {
   sourceCheckedAt: string;
   coordinateSource: DeliveryZoneCoordinateSource;
   displayPolicy: DeliveryZoneDisplayPolicy;
+  confidenceScore: number;
 };
 
 export type DeliveryZoneEvidence = {
@@ -84,7 +85,6 @@ export type ZoneReview = {
 export type DeliveryZoneDetail = DeliveryZone & {
   parkId: string;
   parkName: string;
-  confidenceScore: number;
   official: boolean;
   lastReviewedAt: string | null;
   evidences: DeliveryZoneEvidence[];

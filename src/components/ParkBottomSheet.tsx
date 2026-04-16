@@ -8,6 +8,13 @@ import {
   parkTagLabels,
   zoneReviewStatusLabels,
 } from "../constants/parkLabels";
+import {
+  getDeliveryZoneDisplayPolicyLabel,
+  getDeliveryZoneDisplayPolicyTone,
+  getDeliveryZoneWarningMessage,
+  getVisibleDeliveryZones,
+  isDeliveryZoneLowConfidence,
+} from "../lib/deliveryZonePolicy";
 import { getParkRecommendationLabels } from "../lib/getParkRecommendationLabels";
 import type {
   DeliveryZone,
@@ -41,13 +48,6 @@ type ParkBottomSheetProps = {
   onViewPark: () => void;
   onClose: () => void;
 };
-
-function getVisibleDeliveryZones(park: Park | null) {
-  return park?.deliveryZones.filter(
-    (deliveryZone) =>
-      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
-  ) ?? [];
-}
 
 function getSourceTone(sourceType: DeliveryZone["sourceType"]) {
   switch (sourceType) {
@@ -231,6 +231,7 @@ export function ParkBottomSheet({
 
   if (deliveryZone) {
     const reviewedAtLabel = formatDateTime(deliveryZone.lastReviewedAt);
+    const warningMessage = getDeliveryZoneWarningMessage(deliveryZone);
     const zoneSummary = deliveryZone.official
       ? "서울시 공개 안내에 기반한 공식 배달 수령 지점입니다."
       : deliveryZone.sourceType === "community_verified"
@@ -261,11 +262,24 @@ export function ParkBottomSheet({
               tone={getSourceTone(deliveryZone.sourceType)}
             />
             <TagPill
+              label={getDeliveryZoneDisplayPolicyLabel(deliveryZone.displayPolicy)}
+              tone={getDeliveryZoneDisplayPolicyTone(deliveryZone.displayPolicy)}
+            />
+            <TagPill
               label={deliveryZoneVerificationLabels[deliveryZone.verificationStatus]}
               tone={deliveryZone.official ? "success" : "muted"}
             />
+            {isDeliveryZoneLowConfidence(deliveryZone) ? (
+              <TagPill label="저신뢰 주의" tone="warning" />
+            ) : null}
           </div>
           <p className="bottom-sheet__description">{zoneSummary}</p>
+          {warningMessage ? (
+            <div className="policy-warning" role="note">
+              <strong className="policy-warning__title">low-confidence 안내</strong>
+              <p>{warningMessage}</p>
+            </div>
+          ) : null}
           <div className="detail-metrics">
             <div className="detail-metrics__item">
               <span>신뢰도</span>
@@ -294,6 +308,7 @@ export function ParkBottomSheet({
               <TagPill label={deliveryZone.official ? "공식 안내 연결" : "후보 지점 연결"} tone="muted" />
             </div>
             <p>{deliveryZone.description}</p>
+            {warningMessage ? <p className="delivery-zone-card__warning">{warningMessage}</p> : null}
           </div>
         </DetailSection>
 
@@ -421,7 +436,7 @@ export function ParkBottomSheet({
   }
 
   const recommendationLabels = getParkRecommendationLabels(park);
-  const publicDeliveryZones = getVisibleDeliveryZones(park);
+  const visibleDeliveryZones = getVisibleDeliveryZones(park);
 
   return (
     <aside className="bottom-sheet" aria-label={`${park.name} 상세`}>
@@ -466,8 +481,9 @@ export function ParkBottomSheet({
 
       <DetailSection title="배달존">
         <ul className="delivery-zone-list">
-          {publicDeliveryZones.map((deliveryZoneItem) => {
+          {visibleDeliveryZones.map((deliveryZoneItem) => {
             const isSelected = deliveryZoneItem.id === selectedDeliveryZoneId;
+            const warningMessage = getDeliveryZoneWarningMessage(deliveryZoneItem);
 
             return (
               <li key={deliveryZoneItem.id}>
@@ -487,12 +503,22 @@ export function ParkBottomSheet({
                         tone={getSourceTone(deliveryZoneItem.sourceType)}
                       />
                       <TagPill
+                        label={getDeliveryZoneDisplayPolicyLabel(deliveryZoneItem.displayPolicy)}
+                        tone={getDeliveryZoneDisplayPolicyTone(deliveryZoneItem.displayPolicy)}
+                      />
+                      <TagPill
                         label={deliveryZoneVerificationLabels[deliveryZoneItem.verificationStatus]}
                         tone="muted"
                       />
+                      {isDeliveryZoneLowConfidence(deliveryZoneItem) ? (
+                        <TagPill label="저신뢰 주의" tone="warning" />
+                      ) : null}
                     </div>
                     <strong>{deliveryZoneItem.name}</strong>
                     <p>{deliveryZoneItem.description}</p>
+                    {warningMessage ? (
+                      <p className="delivery-zone-card__warning">{warningMessage}</p>
+                    ) : null}
                     <span>{deliveryZoneItem.address ?? "도로명 주소 미공개"}</span>
                     <span>
                       {deliveryZoneCoordinateSourceLabels[deliveryZoneItem.coordinateSource]} ·{" "}
@@ -501,6 +527,7 @@ export function ParkBottomSheet({
                   </button>
                   <div className="delivery-zone-card__meta">
                     <span>{deliveryZoneItem.sourceLabel}</span>
+                    <span>신뢰도 {deliveryZoneItem.confidenceScore}/100</span>
                     <a href={deliveryZoneItem.sourceUrl} target="_blank" rel="noreferrer">
                       출처 보기
                     </a>

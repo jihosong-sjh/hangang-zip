@@ -1,4 +1,4 @@
-import type { DeliveryZone, Park, ParkAccessPoint } from "../types/park";
+import type { DeliveryZone, DeliveryZoneDisplayPolicy, Park, ParkAccessPoint } from "../types/park";
 
 const SOURCE_CHECKED_AT = "2026-04-14";
 
@@ -15,6 +15,8 @@ function createUnverifiedZone(params: {
   address: string;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -22,7 +24,8 @@ function createUnverifiedZone(params: {
     verificationStatus: "needs_review",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 45,
   });
 }
 
@@ -35,6 +38,8 @@ function createCommunityVerifiedZone(params: {
   address: string;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -42,7 +47,8 @@ function createCommunityVerifiedZone(params: {
     verificationStatus: "needs_review",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 75,
   });
 }
 
@@ -55,6 +61,8 @@ function createOfficialZone(params: {
   address?: string | null;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -63,7 +71,8 @@ function createOfficialZone(params: {
     verificationStatus: "verified",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 95,
   });
 }
 
@@ -220,6 +229,8 @@ const parkSeeds: ParkSeed[] = [
         address: "서울 강서구 양천로27길 279-23",
         sourceLabel: "미래한강본부 강서 소개",
         sourceUrl: "https://hangang.seoul.go.kr/www/contents/675.do?mid=482",
+        displayPolicy: "limited",
+        confidenceScore: 45,
       }),
     ],
   },
@@ -462,6 +473,8 @@ const parkSeeds: ParkSeed[] = [
         address: "서울 송파구 한가람로 65",
         sourceLabel: "미래한강본부 잠실 소개",
         sourceUrl: "https://hangang.seoul.go.kr/www/contents/651.do?mid=444",
+        displayPolicy: "ops_only",
+        confidenceScore: 35,
       }),
     ],
   },

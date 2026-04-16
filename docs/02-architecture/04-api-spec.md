@@ -39,6 +39,18 @@
 - 프론트 라우트 `/parks/:parkSlug`는 `GET /api/parks` 응답의 `slug`로 `id`를 해석한 뒤 `GET /api/parks/{id}`를 호출한다.
 - 배달존 정책 필드명은 `visibility`가 아니라 `displayPolicy`다.
 
+### 공개 정책 규칙
+- `displayPolicy = public`
+  - 사용자 화면에 일반 공개
+- `displayPolicy = limited`
+  - 사용자 화면에 공개되지만 경고형 배지와 low-confidence 안내 문구를 함께 노출
+- `displayPolicy = ops_only`
+  - public API와 사용자 화면에서 숨김
+- `verificationStatus = rejected`
+  - `displayPolicy`와 무관하게 public API와 사용자 화면에서 숨김
+- low-confidence 경고 기준
+  - `displayPolicy = limited` 또는 `confidenceScore < 70`
+
 ### `GET /api/parks`
 공원 목록 조회
 
@@ -49,6 +61,7 @@
 - 현재 `ParkResponse` 구조 유지
 - `slug` 포함
 - `deliveryZones`는 공개 가능한 요약 정보만 포함
+- 각 `deliveryZones` 항목에는 `displayPolicy`, `confidenceScore`가 포함된다.
 - `accessPoints` 필드는 존재하지만 목록 응답에서는 빈 배열로 유지
 - 현재 응답의 배달존 정책 필드는 `displayPolicy`
 
@@ -68,25 +81,26 @@
 예시:
 ```json
 {
-  "id": "yeouido",
-  "slug": "yeouido",
-  "name": "여의도한강공원",
-  "primaryTag": "picnic",
+  "id": "gangseo",
+  "slug": "gangseo",
+  "name": "강서한강공원",
+  "primaryTag": "quiet",
   "accessPoints": [
     {
-      "id": 5,
-      "type": "station",
-      "name": "여의나루역 방향 진입로",
-      "address": "서울 영등포구 여의동로 330"
+      "id": 1,
+      "type": "entrance",
+      "name": "강서습지생태공원 입구",
+      "address": "서울 강서구 양천로27길 279-23"
     }
   ],
   "deliveryZones": [
     {
-      "id": "yeouido-mulbit-plaza",
-      "name": "물빛광장 진입구 옆",
-      "sourceType": "official",
-      "verificationStatus": "verified",
-      "displayPolicy": "public"
+      "id": "gangseo-eco-gate",
+      "name": "습지생태 입구 배달 후보",
+      "sourceType": "unverified",
+      "verificationStatus": "needs_review",
+      "displayPolicy": "limited",
+      "confidenceScore": 45
     }
   ]
 }
@@ -130,20 +144,20 @@
 예시:
 ```json
 {
-  "id": "yeouido-mulbit-plaza",
-  "parkId": "yeouido",
-  "parkName": "여의도한강공원",
-  "name": "물빛광장 진입구 옆",
-  "latitude": 37.5281,
-  "longitude": 126.9336,
-  "sourceType": "official",
-  "verificationStatus": "verified",
-  "displayPolicy": "public",
-  "confidenceScore": 95,
+  "id": "gangseo-eco-gate",
+  "parkId": "gangseo",
+  "parkName": "강서한강공원",
+  "name": "습지생태 입구 배달 후보",
+  "latitude": 37.5792,
+  "longitude": 126.8211,
+  "sourceType": "unverified",
+  "verificationStatus": "needs_review",
+  "displayPolicy": "limited",
+  "confidenceScore": 45,
   "coordinateSource": "manual",
-  "official": true,
-  "sourceLabel": "미래한강본부 FAQ",
-  "sourceUrl": "https://hangang.seoul.go.kr/www/bbsPost/7/479/detail.do?mid=590",
+  "official": false,
+  "sourceLabel": "미래한강본부 강서 소개",
+  "sourceUrl": "https://hangang.seoul.go.kr/www/contents/675.do?mid=482",
   "sourceCheckedAt": "2026-04-14",
   "lastReviewedAt": "2026-04-15T00:00:00",
   "evidences": [],
@@ -174,7 +188,7 @@
 - 없음
 
 정책:
-- public zone만 허용
+- `public` 또는 `limited`인 공개 zone만 허용
 - 좌표 anchor는 요청 zone의 `latitude`, `longitude`를 사용
 - 프론트 `/parks/:parkSlug`에서는 호출하지 않고 `/delivery-zones/:zoneId`에서만 호출
 - 프론트는 별도 SDK fallback 없이 이 API 응답만 사용

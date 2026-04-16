@@ -2,6 +2,7 @@ import type {
   AmenityType,
   ParkAccessPointType,
   DeliveryZoneCoordinateSource,
+  DeliveryZoneDisplayPolicy,
   DeliveryZoneSourceType,
   DeliveryZoneVerificationStatus,
   ParkScoreKey,
@@ -52,6 +53,12 @@ export const deliveryZoneVerificationLabels: Record<DeliveryZoneVerificationStat
   verified: "검증 완료",
   needs_review: "검토 필요",
   rejected: "제외됨",
+};
+
+export const deliveryZoneDisplayPolicyLabels: Record<DeliveryZoneDisplayPolicy, string> = {
+  public: "일반 공개",
+  limited: "주의 공개",
+  ops_only: "운영 전용",
 };
 
 export const zoneReviewStatusLabels: Record<ZoneReviewStatus, string> = {

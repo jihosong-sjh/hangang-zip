@@ -261,9 +261,8 @@ erDiagram
 ### `display_policy`
 - 현재 구현:
   - `public`
-  - `ops_only`
-- 목표 확장:
   - `limited`
+  - `ops_only`
 
 ### `coordinate_source`
 - `official`
@@ -274,11 +273,14 @@ erDiagram
 ## 공개 정책 규칙
 - `public`
   - 공식 또는 운영상 공개 가능한 고신뢰 지점
+- `limited`
+  - 후보지만 공개 가치가 있어 안내는 하되 강한 주의 문구 필요
 - `ops_only`
   - 내부 검수 전용
-- `limited`
-  - Phase 2 목표 확장 값
-  - 후보지만 공개 가치가 있어 안내는 하되 강한 주의 문구 필요
+- `verification_status = rejected`
+  - `displayPolicy`와 무관하게 public API와 사용자 화면에서 제외
+- low-confidence 경고 기준
+  - `displayPolicy = limited` 또는 `confidence_score < 70`
 
 ## confidence score 가이드
 - `90~100`
@@ -306,8 +308,8 @@ erDiagram
 - `park_access_points` public API 연결
 
 ### Step 4. 공개 정책 강화
-- 현재는 저신뢰 지점을 `ops_only`로 제외한다.
-- Phase 2 이후에는 `limited`를 추가해 경고형 공개를 지원한다.
+- 저신뢰 지점은 `limited` 또는 `ops_only` 정책으로 분기한다.
+- `limited`는 경고형 공개, `ops_only`는 비공개 검수 전용으로 사용한다.
 
 ## 권장 마이그레이션 순서
 1. `parks`에 `slug`, `status` 추가

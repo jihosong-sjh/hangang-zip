@@ -45,7 +45,7 @@
 
 ### P1-3. 백엔드 조회 레이어 교체
 - repository/service/mapper를 새 스키마 기준으로 교체
-- public visibility만 프론트 응답으로 노출
+- `displayPolicy` 공개 정책 기준으로만 프론트 응답에 노출
 
 완료 기준:
 - 현재 프론트 화면이 깨지지 않음
@@ -116,7 +116,7 @@
 - 좌표 수정
 - evidence 추가
 - review note 작성
-- visibility 변경
+- `displayPolicy` 변경
 
 ### P3-3. user report 처리
 - 신고/제보 리스트
@@ -164,7 +164,7 @@
 
 ### Must
 - 스키마 분리
-- visibility/confidence 모델 도입
+- `displayPolicy`/confidence 모델 도입
 - 공원/배달존 URL 도입
 - zone 기준 맛집 조회
 
@@ -180,7 +180,7 @@
 
 ## 완료 정의
 - 문서가 코드보다 뒤처지지 않는다.
-- low-confidence 데이터는 무조건 공개되지 않는다.
+- low-confidence 데이터는 `limited` 또는 `ops_only` 정책 없이 무조건 공개되지 않는다.
 - 공원/배달존 페이지가 독립 URL을 가진다.
 - 운영자가 CSV 없이 검수 가능하다.
 - 프론트 빌드와 백엔드 테스트가 기본 기준으로 유지된다.

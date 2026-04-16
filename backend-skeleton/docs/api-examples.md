@@ -77,7 +77,8 @@
       "sourceUrl": "https://hangang.seoul.go.kr/www/bbsPost/7/479/detail.do?mid=590",
       "sourceCheckedAt": "2026-04-14",
       "coordinateSource": "manual",
-      "displayPolicy": "public"
+      "displayPolicy": "public",
+      "confidenceScore": 95
     }
   ]
 }

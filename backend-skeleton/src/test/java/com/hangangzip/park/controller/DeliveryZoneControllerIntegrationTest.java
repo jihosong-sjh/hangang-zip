@@ -82,6 +82,23 @@ class DeliveryZoneControllerIntegrationTest {
     }
 
     @Test
+    void getDeliveryZoneReturnsLimitedZoneDetail() throws Exception {
+        mockMvc.perform(get("/api/delivery-zones/gangseo-eco-gate"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").value("gangseo-eco-gate"))
+            .andExpect(jsonPath("$.displayPolicy").value("limited"))
+            .andExpect(jsonPath("$.confidenceScore").value(45))
+            .andExpect(jsonPath("$.official").value(false));
+    }
+
+    @Test
+    void getDeliveryZoneReturnsNotFoundForOpsOnlyZone() throws Exception {
+        mockMvc.perform(get("/api/delivery-zones/jamsil-eco-garden-gate"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("ZONE_NOT_FOUND"));
+    }
+
+    @Test
     void getDeliveryZoneRestaurantsReturnsNearbyRestaurants() throws Exception {
         BDDMockito.given(deliveryZoneRestaurantProvider.searchNearbyRestaurants(ArgumentMatchers.any()))
             .willReturn(
@@ -107,6 +124,13 @@ class DeliveryZoneControllerIntegrationTest {
             .andExpect(jsonPath("$.count").value(1))
             .andExpect(jsonPath("$.items[0].id").value("123"))
             .andExpect(jsonPath("$.items[0].name").value("한강치킨"));
+    }
+
+    @Test
+    void getDeliveryZoneRestaurantsReturnsNotFoundForOpsOnlyZone() throws Exception {
+        mockMvc.perform(get("/api/delivery-zones/jamsil-eco-garden-gate/restaurants"))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.code").value("ZONE_NOT_FOUND"));
     }
 
     @Test

@@ -15,6 +15,7 @@ public record ParkDeliveryZoneResponse(
     String sourceUrl,
     String sourceCheckedAt,
     String coordinateSource,
-    String displayPolicy
+    String displayPolicy,
+    Integer confidenceScore
 ) {
 }

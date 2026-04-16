@@ -96,4 +96,15 @@ class MigrationSeedIntegrationTest {
             assertThat(review.resultConfidenceScore()).isEqualTo(75);
         });
     }
+
+    @Test
+    void seededDisplayPoliciesCoverLimitedAndOpsOnlyUiScenarios() {
+        DeliveryZoneEntity limitedZone = deliveryZoneRepository.findById("gangseo-eco-gate").orElseThrow();
+        DeliveryZoneEntity opsOnlyZone = deliveryZoneRepository.findById("jamsil-eco-garden-gate").orElseThrow();
+
+        assertThat(limitedZone.getDisplayPolicy()).isEqualTo("limited");
+        assertThat(limitedZone.getConfidenceScore()).isEqualTo(45);
+        assertThat(opsOnlyZone.getDisplayPolicy()).isEqualTo("ops_only");
+        assertThat(opsOnlyZone.getConfidenceScore()).isEqualTo(35);
+    }
 }

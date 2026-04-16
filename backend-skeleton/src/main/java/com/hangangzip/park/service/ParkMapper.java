@@ -77,7 +77,8 @@ public final class ParkMapper {
             deliveryZone.getSourceUrl(),
             deliveryZone.getSourceCheckedAt().toString(),
             deliveryZone.getCoordinateSource(),
-            deliveryZone.getDisplayPolicy()
+            deliveryZone.getDisplayPolicy(),
+            deliveryZone.getConfidenceScore()
         );
     }
 
