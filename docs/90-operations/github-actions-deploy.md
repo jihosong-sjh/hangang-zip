@@ -1,5 +1,7 @@
 # GitHub Actions 배포 가이드
 
+이 문서는 GitHub Actions 기반 CI/CD 설정과 운영 전제 조건을 정리한 문서다.
+
 이 프로젝트는 아래 브랜치 전략을 기준으로 CI/CD를 나눈다.
 
 - `dev`
@@ -11,8 +13,8 @@
 
 ## 워크플로 파일
 
-- [dev-ci.yml](../.github/workflows/dev-ci.yml)
-- [main-deploy.yml](../.github/workflows/main-deploy.yml)
+- [dev-ci.yml](../../.github/workflows/dev-ci.yml)
+- [main-deploy.yml](../../.github/workflows/main-deploy.yml)
 
 ## 동작 방식
 
@@ -56,9 +58,9 @@ EC2에는 아래가 이미 준비돼 있어야 한다.
 - `/home/ubuntu/apps/hangang-zip/backend/.env`
 
 관련 템플릿:
-- [deploy/nginx/hangang-zip.conf](../deploy/nginx/hangang-zip.conf)
-- [deploy/systemd/hangang-backend.service](../deploy/systemd/hangang-backend.service)
-- [deploy/env/backend.env.example](../deploy/env/backend.env.example)
+- [deploy/nginx/hangang-zip.conf](../../deploy/nginx/hangang-zip.conf)
+- [deploy/systemd/hangang-backend.service](../../deploy/systemd/hangang-backend.service)
+- [deploy/env/backend.env.example](../../deploy/env/backend.env.example)
 
 ## 추천 운영 방식
 

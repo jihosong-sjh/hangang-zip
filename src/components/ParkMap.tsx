@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { parkTagLabels } from "../constants/parkLabels";
+import { getVisibleDeliveryZones } from "../lib/deliveryZonePolicy";
 import { loadKakaoMaps, type KakaoMapsSdk } from "../lib/loadKakaoMaps";
 import type { DeliveryZone, NearbyRestaurant, Park } from "../types/park";
 
@@ -14,13 +15,6 @@ type ParkMapProps = {
 };
 
 const defaultCenter = { latitude: 37.5287, longitude: 126.98 };
-
-function getVisibleDeliveryZones(park: Park | null) {
-  return park?.deliveryZones.filter(
-    (deliveryZone) =>
-      deliveryZone.displayPolicy === "public" && deliveryZone.verificationStatus !== "rejected",
-  ) ?? [];
-}
 
 function escapeHtml(value: string) {
   return value
@@ -67,6 +61,10 @@ function buildRestaurantOverlay(restaurant: NearbyRestaurant) {
 function getDeliveryZoneMarkerColor(deliveryZone: DeliveryZone, isSelected: boolean) {
   if (isSelected) {
     return "#a33b17";
+  }
+
+  if (deliveryZone.displayPolicy === "limited") {
+    return "#c48a2c";
   }
 
   switch (deliveryZone.sourceType) {

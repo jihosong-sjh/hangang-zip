@@ -30,10 +30,12 @@ cd backend-skeleton
 - H2 Console 활성화
 - Flyway가 스키마와 11개 공원 초기 데이터를 함께 적재
 - 로컬 실행은 `./scripts/run-dev-local.sh`
+- `KAKAO_LOCAL_REST_API_KEY`가 없으면 맛집 API는 `502`를 반환
 
 ### prod
 - MySQL 사용
 - `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` 환경변수 사용
+- `KAKAO_LOCAL_REST_API_KEY` 환경변수 사용
 - 로컬 Docker MySQL 검증용 기본 URL은 `allowPublicKeyRetrieval=true` 포함
 - H2 Console 비활성화
 - Flyway가 스키마와 초기 데이터를 적재
@@ -67,6 +69,8 @@ SPRING_PROFILES_ACTIVE=prod ./gradlew bootRun
 curl http://localhost:8081/api/parks
 curl http://localhost:8081/api/parks/yeouido
 curl "http://localhost:8081/api/parks?tag=running"
+curl http://localhost:8081/api/delivery-zones/yeouido-mulbit-plaza
+curl http://localhost:8081/api/delivery-zones/yeouido-mulbit-plaza/restaurants
 ```
 
 참고:
@@ -96,6 +100,8 @@ src/main/java/com/hangangzip
   - `GET /api/parks`
   - `GET /api/parks/{id}`
   - `GET /api/parks?tag=running`
+  - `GET /api/delivery-zones/{zoneId}`
+  - `GET /api/delivery-zones/{zoneId}/restaurants`
 
 ## 주의
 - 현재 데이터는 실제 한강공원 기준의 서비스용 초안 데이터

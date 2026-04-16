@@ -1,5 +1,7 @@
 # AWS EC2 단일 서버 배포 가이드
 
+이 문서는 EC2 한 대 기준의 배포 절차를 정리한 운영 문서다.
+
 이 문서는 `Hangang ZIP`을 EC2 한 대에 아래 구성으로 배포하는 기준 문서다.
 
 - 프론트엔드: Vite build 결과물을 `nginx`가 정적 파일로 서빙
@@ -130,6 +132,12 @@ DB_URL=jdbc:mysql://localhost:3306/hangang_zip?useSSL=false&allowPublicKeyRetrie
 DB_USERNAME=hangang_zip
 DB_PASSWORD=CHANGE_ME_STRONG_PASSWORD
 APP_CORS_ALLOWED_ORIGIN=https://hangang.jihosong.com
+KAKAO_LOCAL_REST_API_KEY=YOUR_KAKAO_REST_API_KEY
+KAKAO_LOCAL_RESTAURANT_RADIUS=1200
+KAKAO_LOCAL_RESTAURANT_SIZE=12
+KAKAO_LOCAL_SUCCESS_TTL=10m
+KAKAO_LOCAL_EMPTY_TTL=3m
+KAKAO_LOCAL_STALE_TTL=1h
 EOF
 ```
 
@@ -236,7 +244,8 @@ sudo certbot renew --dry-run
 - 지도 로드
 - 마커 클릭
 - 배달존 클릭
-- 근처 맛집 검색 결과 표시
+- `/parks/:parkSlug`에서 맛집 섹션 미노출
+- `/delivery-zones/:zoneId`에서 근처 맛집 검색 결과 표시
 - 상세 바텀시트
 - 필터 동작
 
@@ -246,6 +255,8 @@ API 확인:
 curl https://hangang.jihosong.com/api/parks
 curl https://hangang.jihosong.com/api/parks/yeouido
 curl "https://hangang.jihosong.com/api/parks?tag=running"
+curl https://hangang.jihosong.com/api/delivery-zones/yeouido-mulbit-plaza
+curl https://hangang.jihosong.com/api/delivery-zones/yeouido-mulbit-plaza/restaurants
 ```
 
 문제가 있으면 확인:
@@ -294,6 +305,7 @@ sudo systemctl status hangang-backend
 
 - `SPRING_PROFILES_ACTIVE=prod` 확인
 - `APP_CORS_ALLOWED_ORIGIN`이 실제 도메인인지 확인
+- `KAKAO_LOCAL_REST_API_KEY`가 `.env`에만 있는지 확인
 - MySQL 비밀번호가 `.env`에만 있는지 확인
 - `3306`, `8081` 외부 포트 비공개 확인
 - `journalctl -u hangang-backend -f`로 에러 확인
@@ -310,6 +322,8 @@ mysqldump -u hangang_zip -p hangang_zip > ~/hangang_zip_backup.sql
 - 현재 데이터는 실제 한강공원 기준의 서비스용 초안 데이터다.
 - Flyway가 첫 기동 시 테이블과 초기 데이터를 함께 적재한다.
 - 운영 빌드에서는 `npm run build` 전에 반드시 `VITE_PARK_DATA_SOURCE=api`, 실제 `VITE_API_BASE_URL`, `VITE_KAKAO_MAP_JS_KEY`를 지정해야 한다.
+- 근처 맛집은 프론트 직접 SDK 호출이 아니라 백엔드 `GET /api/delivery-zones/{zoneId}/restaurants`를 통해서만 조회된다.
+- Kakao Local REST API 키는 프론트가 아니라 백엔드 `.env`에만 둔다.
 - 같은 도메인에서 `/api` 프록시를 쓸 경우 프론트의 `VITE_API_BASE_URL`은 `https://hangang.jihosong.com`처럼 도메인 루트 기준으로 주는 편이 단순하다.
 - Kakao Developers에서 `localhost`와 운영 도메인을 각각 JavaScript 허용 도메인으로 등록해야 한다.
 - 정적 파일은 `/home/ubuntu/...` 대신 `/var/www/hangang-zip`에 두는 편이 nginx 권한 문제를 줄이기 쉽다.

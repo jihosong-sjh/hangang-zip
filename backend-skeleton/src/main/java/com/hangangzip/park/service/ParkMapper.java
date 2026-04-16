@@ -1,9 +1,11 @@
 package com.hangangzip.park.service;
 
 import com.hangangzip.park.domain.AmenityType;
-import com.hangangzip.park.domain.ParkDeliveryZoneEmbeddable;
+import com.hangangzip.park.domain.DeliveryZoneEntity;
+import com.hangangzip.park.domain.ParkAccessPointEntity;
 import com.hangangzip.park.domain.ParkEntity;
 import com.hangangzip.park.domain.ParkTag;
+import com.hangangzip.park.dto.ParkAccessPointResponse;
 import com.hangangzip.park.dto.ParkDeliveryZoneResponse;
 import com.hangangzip.park.dto.ParkResponse;
 import com.hangangzip.park.dto.ParkScoresResponse;
@@ -15,9 +17,14 @@ public final class ParkMapper {
     private ParkMapper() {
     }
 
-    public static ParkResponse toResponse(ParkEntity park) {
+    public static ParkResponse toResponse(
+        ParkEntity park,
+        List<ParkDeliveryZoneResponse> deliveryZones,
+        List<ParkAccessPointResponse> accessPoints
+    ) {
         return new ParkResponse(
             park.getId(),
+            park.getSlug(),
             park.getName(),
             park.getLatitude(),
             park.getLongitude(),
@@ -39,14 +46,24 @@ public final class ParkMapper {
                 .map(ParkMapper::toClientValue)
                 .toList(),
             park.getRecommendation(),
-            park.getDeliveryZones().stream()
-                .sorted(Comparator.comparing(ParkDeliveryZoneEmbeddable::getId))
-                .map(ParkMapper::toResponse)
-                .toList()
+            deliveryZones,
+            accessPoints
         );
     }
 
-    private static ParkDeliveryZoneResponse toResponse(ParkDeliveryZoneEmbeddable deliveryZone) {
+    public static ParkAccessPointResponse toAccessPointResponse(ParkAccessPointEntity accessPoint) {
+        return new ParkAccessPointResponse(
+            accessPoint.getId(),
+            accessPoint.getType(),
+            accessPoint.getName(),
+            accessPoint.getLatitude(),
+            accessPoint.getLongitude(),
+            accessPoint.getAddress(),
+            accessPoint.getNote()
+        );
+    }
+
+    public static ParkDeliveryZoneResponse toDeliveryZoneResponse(DeliveryZoneEntity deliveryZone) {
         return new ParkDeliveryZoneResponse(
             deliveryZone.getId(),
             deliveryZone.getName(),
@@ -60,7 +77,8 @@ public final class ParkMapper {
             deliveryZone.getSourceUrl(),
             deliveryZone.getSourceCheckedAt().toString(),
             deliveryZone.getCoordinateSource(),
-            deliveryZone.getDisplayPolicy()
+            deliveryZone.getDisplayPolicy(),
+            deliveryZone.getConfidenceScore()
         );
     }
 

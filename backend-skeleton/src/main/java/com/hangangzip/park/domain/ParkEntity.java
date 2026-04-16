@@ -24,6 +24,9 @@ public class ParkEntity {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
+    @Column(name = "slug", length = 80)
+    private String slug;
+
     @Column(name = "latitude", nullable = false, precision = 10, scale = 7)
     private BigDecimal latitude;
 
@@ -54,6 +57,9 @@ public class ParkEntity {
 
     @Column(name = "recommendation", nullable = false, length = 255)
     private String recommendation;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
 
     @ElementCollection(targetClass = ParkTag.class)
     @CollectionTable(name = "park_tags", joinColumns = @JoinColumn(name = "park_id"))
@@ -88,6 +94,14 @@ public class ParkEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getSlug() {
+        return slug;
+    }
+
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
 
     public BigDecimal getLatitude() {
@@ -168,6 +182,14 @@ public class ParkEntity {
 
     public void setRecommendation(String recommendation) {
         this.recommendation = recommendation;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Set<ParkTag> getTags() {

@@ -18,6 +18,15 @@ server:
 app:
   cors:
     allowed-origin: http://localhost:5173
+  kakao:
+    local:
+      base-url: ${KAKAO_LOCAL_BASE_URL:https://dapi.kakao.com}
+      rest-api-key: ${KAKAO_LOCAL_REST_API_KEY:}
+      restaurant-radius: ${KAKAO_LOCAL_RESTAURANT_RADIUS:1200}
+      restaurant-size: ${KAKAO_LOCAL_RESTAURANT_SIZE:12}
+      success-ttl: ${KAKAO_LOCAL_SUCCESS_TTL:10m}
+      empty-ttl: ${KAKAO_LOCAL_EMPTY_TTL:3m}
+      stale-ttl: ${KAKAO_LOCAL_STALE_TTL:1h}
 
 logging:
   level:

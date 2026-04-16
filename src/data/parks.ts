@@ -1,4 +1,4 @@
-import type { DeliveryZone, Park } from "../types/park";
+import type { DeliveryZone, DeliveryZoneDisplayPolicy, Park, ParkAccessPoint } from "../types/park";
 
 const SOURCE_CHECKED_AT = "2026-04-14";
 
@@ -15,6 +15,8 @@ function createUnverifiedZone(params: {
   address: string;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -22,7 +24,8 @@ function createUnverifiedZone(params: {
     verificationStatus: "needs_review",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 45,
   });
 }
 
@@ -35,6 +38,8 @@ function createCommunityVerifiedZone(params: {
   address: string;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -42,7 +47,8 @@ function createCommunityVerifiedZone(params: {
     verificationStatus: "needs_review",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 75,
   });
 }
 
@@ -55,6 +61,8 @@ function createOfficialZone(params: {
   address?: string | null;
   sourceLabel: string;
   sourceUrl: string;
+  displayPolicy?: DeliveryZoneDisplayPolicy;
+  confidenceScore?: number;
 }): DeliveryZone {
   return createDeliveryZone({
     ...params,
@@ -63,7 +71,8 @@ function createOfficialZone(params: {
     verificationStatus: "verified",
     sourceCheckedAt: SOURCE_CHECKED_AT,
     coordinateSource: "manual",
-    displayPolicy: "public",
+    displayPolicy: params.displayPolicy ?? "public",
+    confidenceScore: params.confidenceScore ?? 95,
   });
 }
 
@@ -72,7 +81,133 @@ const officialFaqSource = {
   sourceUrl: "https://hangang.seoul.go.kr/www/bbsPost/7/479/detail.do?mid=590",
 };
 
-export const parks: Park[] = [
+type ParkSeed = Omit<Park, "slug" | "accessPoints">;
+
+const accessPointsByParkId: Record<string, ParkAccessPoint[]> = {
+  gangseo: [
+    {
+      id: 1,
+      type: "entrance",
+      name: "강서습지생태공원 입구",
+      latitude: 37.5792,
+      longitude: 126.8211,
+      address: "서울 강서구 양천로27길 279-23",
+      note: "생태공원과 가족 피크닉장 방향으로 진입하기 쉬운 접근 포인트",
+    },
+  ],
+  yanghwa: [
+    {
+      id: 2,
+      type: "entrance",
+      name: "선유교 남단 진입부",
+      latitude: 37.5411,
+      longitude: 126.9015,
+      address: "서울 영등포구 노들로 221",
+      note: "선유교와 장미길 쪽 동선을 바로 연결하는 접근 포인트",
+    },
+  ],
+  mangwon: [
+    {
+      id: 3,
+      type: "parking",
+      name: "망원2주차장 입구",
+      latitude: 37.551,
+      longitude: 126.9038,
+      address: "서울 마포구 합정동 205-5",
+      note: "차량 접근과 잔디광장 합류 동선을 함께 잡기 쉬운 지점",
+    },
+  ],
+  nanji: [
+    {
+      id: 4,
+      type: "entrance",
+      name: "난지캠핑장 입구",
+      latitude: 37.5669,
+      longitude: 126.8784,
+      address: "서울 마포구 한강난지로 162",
+      note: "캠핑장과 거울분수 방향으로 이동하기 좋은 진입 포인트",
+    },
+  ],
+  yeouido: [
+    {
+      id: 5,
+      type: "station",
+      name: "여의나루역 방향 진입로",
+      latitude: 37.5271,
+      longitude: 126.9327,
+      address: "서울 영등포구 여의동로 330",
+      note: "대중교통 접근 시 가장 설명하기 쉬운 대표 진입 포인트",
+    },
+  ],
+  banpo: [
+    {
+      id: 6,
+      type: "plaza",
+      name: "달빛광장 진입부",
+      latitude: 37.5098,
+      longitude: 126.9956,
+      address: "서울 서초구 반포동 115-5",
+      note: "달빛무지개분수와 반포2주차장 사이에서 만나기 쉬운 지점",
+    },
+  ],
+  ichon: [
+    {
+      id: 7,
+      type: "entrance",
+      name: "이촌나들목",
+      latitude: 37.5193,
+      longitude: 126.9688,
+      address: "서울 용산구 이촌로72길 62",
+      note: "한강대교 북단 산책로와 바로 이어지는 접근 포인트",
+    },
+  ],
+  ttukseom: [
+    {
+      id: 8,
+      type: "station",
+      name: "뚝섬 나들목",
+      latitude: 37.5293,
+      longitude: 127.0675,
+      address: null,
+      note: "지하철과 수변무대 동선을 함께 설명하기 쉬운 대표 접근 포인트",
+    },
+  ],
+  jamwon: [
+    {
+      id: 9,
+      type: "entrance",
+      name: "신사나들목",
+      latitude: 37.5258,
+      longitude: 127.0178,
+      address: "서울 서초구 잠원로 221-124",
+      note: "러닝 동선과 자전거도로 진입을 함께 안내하기 좋은 지점",
+    },
+  ],
+  jamsil: [
+    {
+      id: 10,
+      type: "entrance",
+      name: "자연학습장 입구",
+      latitude: 37.5179,
+      longitude: 127.0849,
+      address: "서울 송파구 한가람로 65",
+      note: "가족 방문 시 자연학습장과 물놀이장으로 이동하기 쉬운 진입 포인트",
+    },
+  ],
+  gwangnaru: [
+    {
+      id: 11,
+      type: "entrance",
+      name: "생태공원 입구",
+      latitude: 37.5405,
+      longitude: 127.1151,
+      address: "서울 강동구 선사로 83-106",
+      note: "생태경관 보전지역으로 이어지는 대표 접근 포인트",
+    },
+  ],
+};
+
+const parkSeeds: ParkSeed[] = [
   {
     id: "gangseo",
     name: "강서한강공원",
@@ -94,6 +229,8 @@ export const parks: Park[] = [
         address: "서울 강서구 양천로27길 279-23",
         sourceLabel: "미래한강본부 강서 소개",
         sourceUrl: "https://hangang.seoul.go.kr/www/contents/675.do?mid=482",
+        displayPolicy: "limited",
+        confidenceScore: 45,
       }),
     ],
   },
@@ -336,6 +473,8 @@ export const parks: Park[] = [
         address: "서울 송파구 한가람로 65",
         sourceLabel: "미래한강본부 잠실 소개",
         sourceUrl: "https://hangang.seoul.go.kr/www/contents/651.do?mid=444",
+        displayPolicy: "ops_only",
+        confidenceScore: 35,
       }),
     ],
   },
@@ -364,3 +503,9 @@ export const parks: Park[] = [
     ],
   },
 ];
+
+export const parks: Park[] = parkSeeds.map((park) => ({
+  ...park,
+  slug: park.id,
+  accessPoints: accessPointsByParkId[park.id] ?? [],
+}));

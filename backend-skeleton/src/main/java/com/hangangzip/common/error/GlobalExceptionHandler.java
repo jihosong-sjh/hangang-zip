@@ -1,6 +1,8 @@
 package com.hangangzip.common.error;
 
 import com.hangangzip.park.service.ParkNotFoundException;
+import com.hangangzip.park.service.DeliveryZoneNotFoundException;
+import com.hangangzip.park.service.RestaurantProviderUnavailableException;
 import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiErrorResponse> handleParkNotFound(ParkNotFoundException exception) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(new ApiErrorResponse("PARK_NOT_FOUND", exception.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(DeliveryZoneNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleDeliveryZoneNotFound(DeliveryZoneNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(new ApiErrorResponse("ZONE_NOT_FOUND", exception.getMessage(), LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(RestaurantProviderUnavailableException.class)
+    public ResponseEntity<ApiErrorResponse> handleRestaurantProviderUnavailable(
+        RestaurantProviderUnavailableException exception
+    ) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+            .body(new ApiErrorResponse("RESTAURANT_PROVIDER_UNAVAILABLE", exception.getMessage(), LocalDateTime.now()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

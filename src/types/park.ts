@@ -18,13 +18,32 @@ export type ParkScoreKey = "running" | "picnic" | "quiet" | "night" | "family";
 
 export type ParkScores = Record<ParkScoreKey, number>;
 
+export type ParkAccessPointType = "entrance" | "station" | "parking" | "plaza";
+
 export type DeliveryZoneSourceType = "official" | "community_verified" | "unverified";
 
 export type DeliveryZoneVerificationStatus = "verified" | "needs_review" | "rejected";
 
 export type DeliveryZoneCoordinateSource = "official" | "geocoded" | "manual";
 
-export type DeliveryZoneDisplayPolicy = "public" | "ops_only";
+export type DeliveryZoneDisplayPolicy = "public" | "limited" | "ops_only";
+
+export type DeliveryZoneEvidenceSourceType =
+  | "official"
+  | "community_verified"
+  | "unverified";
+
+export type ZoneReviewStatus = "approved" | "pending" | "rejected";
+
+export type ParkAccessPoint = {
+  id: number;
+  type: ParkAccessPointType | string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  address: string | null;
+  note: string | null;
+};
 
 export type DeliveryZone = {
   id: string;
@@ -40,6 +59,36 @@ export type DeliveryZone = {
   sourceCheckedAt: string;
   coordinateSource: DeliveryZoneCoordinateSource;
   displayPolicy: DeliveryZoneDisplayPolicy;
+  confidenceScore: number;
+};
+
+export type DeliveryZoneEvidence = {
+  id: number;
+  sourceType: DeliveryZoneEvidenceSourceType;
+  sourceLabel: string;
+  sourceUrl: string;
+  sourceExcerpt: string | null;
+  checkedAt: string;
+  evidenceScore: number;
+  primary: boolean;
+};
+
+export type ZoneReview = {
+  id: number;
+  reviewStatus: ZoneReviewStatus;
+  reviewNote: string | null;
+  reviewedBy: string;
+  reviewedAt: string;
+  resultConfidenceScore: number | null;
+};
+
+export type DeliveryZoneDetail = DeliveryZone & {
+  parkId: string;
+  parkName: string;
+  official: boolean;
+  lastReviewedAt: string | null;
+  evidences: DeliveryZoneEvidence[];
+  reviews: ZoneReview[];
 };
 
 export type NearbyRestaurant = {
@@ -56,6 +105,7 @@ export type NearbyRestaurant = {
 
 export type Park = {
   id: string;
+  slug: string;
   name: string;
   latitude: number;
   longitude: number;
@@ -66,4 +116,5 @@ export type Park = {
   amenities: AmenityType[];
   recommendation: string;
   deliveryZones: DeliveryZone[];
+  accessPoints: ParkAccessPoint[];
 };
